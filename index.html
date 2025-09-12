@@ -1,67 +1,79 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sistema de Catequese (SheetDB)</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sistema de Catequese — Completo</title>
 
-  <!-- Bootstrap (para modal e utilidades) -->
+  <!-- Bootstrap (modal, grid, utilidades) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root{
       --primary:#2f9e44;
-      --dark:#1f6f2b;
-      --bg:#f4f6f9;
-      --card:#fff;
+      --primary-dark:#1f6f2b;
       --muted:#6c757d;
+      --bg:#f5f7fb;
+      --card:#ffffff;
     }
-    body{background:var(--bg);font-family:Inter,system-ui,Arial,Helvetica,sans-serif;}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:var(--bg);color:#222}
+    /* Sidebar */
     .sidebar{
-      width:240px; position:fixed; left:0; top:0; bottom:0; background:var(--primary); color:white;
-      padding:18px; transition:.25s;
+      width:240px;position:fixed;left:0;top:0;bottom:0;background:var(--primary);color:#fff;padding:18px;transition:transform .25s;
     }
-    .sidebar .title{font-weight:700;font-size:20px;margin-bottom:18px}
-    .sidebar .nav-btn{display:block;color:white;text-decoration:none;padding:10px;border-radius:8px;margin-bottom:6px}
-    .sidebar .nav-btn.active, .sidebar .nav-btn:hover{background:var(--dark)}
-    .content{margin-left:260px;padding:20px;}
-    .card-box{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:18px;}
+    .sidebar .title{font-weight:700;font-size:20px;margin-bottom:14px}
+    .nav-link{color:#fff;display:block;padding:10px;border-radius:8px;text-decoration:none;margin-bottom:6px}
+    .nav-link:hover,.nav-link.active{background:var(--primary-dark)}
+    /* Content */
+    .wrap{margin-left:260px;padding:20px;transition:margin .25s}
+    .card-box{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06);margin-bottom:16px}
     .small-muted{color:var(--muted);font-size:13px}
-    /* mobile */
-    @media (max-width:900px){
-      .sidebar{transform:translateX(-260px);position:fixed;z-index:1050;}
-      .sidebar.open{transform:translateX(0);}
-      .content{margin-left:0;padding:14px;}
-      .hamburger{display:inline-block;}
+    .table-card{background:var(--card);padding:12px;border-radius:8px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+    .search-input{max-width:360px}
+    .hamburger{display:none;cursor:pointer;margin-right:8px;font-size:20px}
+    /* Responsive adjustments */
+    @media(max-width:900px){
+      .sidebar{transform:translateX(-280px);z-index:1200}
+      .sidebar.open{transform:translateX(0)}
+      .wrap{margin-left:0;padding:14px}
+      .hamburger{display:inline-block}
+      .desktop-table{display:none}
+      .mobile-cards{display:block}
     }
-    .hamburger{display:none;cursor:pointer;margin-right:8px}
-    .table-responsive{overflow:auto}
-    .search-input{max-width:320px}
-    .table-card{background:white;padding:12px;border-radius:8px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    @media(min-width:901px){
+      .mobile-cards{display:none}
+    }
+    /* small helpers */
+    .muted{color:var(--muted)}
+    .btn-sm-ghost{border:1px solid #ddd;background:#fff;color:#333}
   </style>
 </head>
 <body>
-
-  <!-- sidebar -->
+  <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
     <div class="title">✝️ Catequese</div>
-    <a class="nav-btn active" data-page="dashboard" href="#!" onclick="showPage(event)">Dashboard</a>
-    <a class="nav-btn" data-page="turmas" href="#!" onclick="showPage(event)">Turmas</a>
-    <a class="nav-btn" data-page="catequizandos" href="#!" onclick="showPage(event)">Catequizandos</a>
-    <a class="nav-btn" data-page="presencas" href="#!" onclick="showPage(event)">Presenças</a>
-    <a class="nav-btn" data-page="ritos" href="#!" onclick="showPage(event)">Ritos</a>
-    <div style="height:20px"></div>
-    <div class="small-muted">Conectado a SheetDB</div>
+    <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
+    <a href="#" class="nav-link" data-page="turmas">Turmas</a>
+    <a href="#" class="nav-link" data-page="catequizandos">Catequizandos</a>
+    <a href="#" class="nav-link" data-page="presencas">Presenças</a>
+    <a href="#" class="nav-link" data-page="ritos">Ritos</a>
+    <div style="height:18px"></div>
+    <div class="small-muted">Conectado: SheetDB</div>
   </div>
 
-  <!-- content -->
-  <div class="content">
+  <!-- MAIN WRAP -->
+  <div class="wrap">
     <div class="d-flex align-items-center mb-3">
-      <button class="btn btn-sm btn-outline-secondary hamburger me-2" id="hambtn" onclick="toggleSidebar()">☰</button>
-      <h3 id="pageTitle">Dashboard</h3>
-      <div class="ms-auto small-muted" id="statusInfo">API: sheetdb.io</div>
+      <span class="hamburger me-2" id="hambBtn">☰</span>
+      <h4 id="pageTitle" style="margin:0">Dashboard</h4>
+      <div class="ms-auto muted" id="apiInfo">API: sheetdb.io</div>
     </div>
 
+    <!-- PAGES -->
     <!-- DASHBOARD -->
     <div id="page-dashboard" class="page">
       <div class="row g-3 mb-3">
@@ -91,573 +103,642 @@
         </div>
       </div>
 
-      <div class="card-box">
-        <h5>Resumo</h5>
-        <div class="small-muted">Use as abas à esquerda para gerenciar dados. Todas as ações salvam direto no Google Sheets via SheetDB.</div>
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <div class="card-box">
+            <h5>Presenças por Turma</h5>
+            <canvas id="chartPresencas" style="max-height:300px"></canvas>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="card-box">
+            <h5>Ritos por Tipo</h5>
+            <canvas id="chartRitos" style="max-height:300px"></canvas>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- TURMAS -->
     <div id="page-turmas" class="page" style="display:none">
       <div class="d-flex align-items-center mb-2">
-        <h4 class="me-auto">Turmas</h4>
-        <input id="searchTurmas" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar turma" oninput="renderTurmas()" />
+        <h5 class="me-auto">Turmas</h5>
+        <input id="searchTurmas" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar turma" />
       </div>
 
       <div class="card-box mb-3">
-        <form id="formTurma" onsubmit="event.preventDefault(); saveTurma();">
+        <form id="formTurma">
           <div class="row g-2">
             <div class="col-md-5"><input id="turma_nome" class="form-control" placeholder="Nome da turma" required></div>
             <div class="col-md-4"><input id="turma_catequista" class="form-control" placeholder="Catequista"></div>
             <div class="col-md-3 d-flex gap-2">
-              <input id="turma_horario" class="form-control" placeholder="Horário (ex: sáb 09:00)">
-              <button class="btn btn-success">Salvar</button>
+              <input id="turma_horario" class="form-control" placeholder="Horário">
+              <button class="btn btn-success" type="submit">Salvar</button>
             </div>
           </div>
         </form>
       </div>
 
       <div id="turmasList" class="card-box">
-        <div id="turmasTableWrapper" class="table-responsive"><table id="turmasTable" class="table mb-0"></table></div>
-        <div id="turmasMobile" class="d-block d-md-none mt-2"></div>
+        <div class="table-responsive desktop-table"><table id="turmasTable" class="table table-sm mb-0"></table></div>
+        <div id="turmasMobile" class="mobile-cards"></div>
       </div>
     </div>
 
     <!-- CATEQUIZANDOS -->
     <div id="page-catequizandos" class="page" style="display:none">
       <div class="d-flex align-items-center mb-2">
-        <h4 class="me-auto">Catequizandos</h4>
-        <input id="searchCate" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar nome/turma" oninput="renderCatequizandos()" />
+        <h5 class="me-auto">Catequizandos</h5>
+        <input id="searchCate" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar nome ou turma" />
       </div>
 
       <div class="card-box mb-3">
-        <form id="formCate" onsubmit="event.preventDefault(); saveCatequizando();">
+        <form id="formCate">
           <div class="row g-2">
-            <div class="col-12 col-md-5"><input id="cat_nome" class="form-control" placeholder="Nome do catequizando" required></div>
-            <div class="col-6 col-md-2"><input id="cat_data_nasc" type="date" class="form-control" onchange="calcularIdade()" required></div>
-            <div class="col-6 col-md-1"><input id="cat_idade" class="form-control" placeholder="Idade" readonly></div>
-            <div class="col-12 col-md-4"><select id="cat_turma" class="form-select"></select></div>
+            <div class="col-md-5"><input id="cat_nome" class="form-control" placeholder="Nome do catequizando" required></div>
+            <div class="col-md-2"><input id="cat_data_nasc" type="date" class="form-control" onchange="calcularIdade()" required></div>
+            <div class="col-md-1"><input id="cat_idade" class="form-control" placeholder="Idade" readonly></div>
+            <div class="col-md-4"><select id="cat_turma" class="form-select"></select></div>
 
-            <div class="col-12 col-md-5"><input id="cat_responsavel" class="form-control" placeholder="Nome do responsável"></div>
-            <div class="col-12 col-md-4"><input id="cat_contato_responsavel" class="form-control" placeholder="Contato do responsável"></div>
-            <div class="col-12 col-md-3"><input id="cat_telefone_opcional" class="form-control" placeholder="Telefone alternativo (opcional)"></div>
+            <div class="col-md-5"><input id="cat_responsavel" class="form-control" placeholder="Nome do responsável"></div>
+            <div class="col-md-4"><input id="cat_contato_responsavel" class="form-control" placeholder="Contato do responsável"></div>
+            <div class="col-md-3"><input id="cat_telefone_opcional" class="form-control" placeholder="Tel. opcional"></div>
 
             <div class="col-12"><textarea id="cat_observacao" class="form-control" rows="2" placeholder="Observações"></textarea></div>
-
             <input type="hidden" id="cat_row">
-            <div class="col-12 text-end"><button class="btn btn-success">Salvar</button></div>
+            <div class="col-12 text-end"><button class="btn btn-success mt-2" type="submit">Salvar</button></div>
           </div>
         </form>
       </div>
 
       <div class="card-box">
-        <div class="table-responsive"><table id="cateTable" class="table table-sm mb-0"></table></div>
-        <div id="cateMobile" class="d-block d-md-none mt-2"></div>
+        <div class="table-responsive desktop-table"><table id="cateTable" class="table table-sm mb-0"></table></div>
+        <div id="cateMobile" class="mobile-cards"></div>
       </div>
     </div>
 
     <!-- PRESENCAS -->
     <div id="page-presencas" class="page" style="display:none">
       <div class="d-flex align-items-center mb-2">
-        <h4 class="me-auto">Presenças</h4>
-        <input id="searchPres" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar por turma/ data" oninput="renderPresencas()" />
+        <h5 class="me-auto">Presenças</h5>
+        <input id="searchPres" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar por turma / data" />
       </div>
 
       <div class="card-box mb-3">
-        <form id="formPres" onsubmit="event.preventDefault(); savePresenca();">
+        <form id="formPres">
           <div class="row g-2 align-items-center">
-            <div class="col-md-4"><select id="pres_turma" class="form-select" onchange="loadCatequizandoSelectForPresence()"></select></div>
-            <div class="col-md-3"><select id="pres_catequizando" class="form-select"></select></div>
-            <div class="col-md-3"><input id="pres_data" type="date" class="form-control" required></div>
-            <div class="col-md-2 d-flex gap-2"><select id="pres_status" class="form-select"><option>Presente</option><option>Faltou</option></select><button class="btn btn-success">Salvar</button></div>
+            <div class="col-md-4"><select id="pres_turma" class="form-select" required></select></div>
+            <div class="col-md-4"><select id="pres_catequizando" class="form-select" required></select></div>
+            <div class="col-md-2"><input id="pres_data" type="date" class="form-control" required></div>
+            <div class="col-md-2 d-flex gap-2"><select id="pres_status" class="form-select"><option>Presente</option><option>Faltou</option></select><button class="btn btn-success" type="submit">Salvar</button></div>
           </div>
         </form>
       </div>
 
       <div class="card-box">
-        <div class="table-responsive"><table id="presTable" class="table table-sm mb-0"></table></div>
-        <div id="presMobile" class="d-block d-md-none mt-2"></div>
+        <div class="table-responsive desktop-table"><table id="presTable" class="table table-sm mb-0"></table></div>
+        <div id="presMobile" class="mobile-cards"></div>
       </div>
     </div>
 
     <!-- RITOS -->
     <div id="page-ritos" class="page" style="display:none">
       <div class="d-flex align-items-center mb-2">
-        <h4 class="me-auto">Ritos</h4>
-        <input id="searchRitos" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar rito/ catequizando" oninput="renderRitos()" />
+        <h5 class="me-auto">Ritos</h5>
+        <input id="searchRitos" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar rito / catequizando" />
       </div>
 
       <div class="card-box mb-3">
-        <form id="formRito" onsubmit="event.preventDefault(); saveRito();">
+        <form id="formRito">
           <div class="row g-2">
             <div class="col-md-4"><select id="rito_turma" class="form-select" onchange="loadCatequizandoSelectForRito()"></select></div>
-            <div class="col-md-4"><select id="rito_catequizando" class="form-select"></select></div>
-            <div class="col-md-3"><input id="rito_tipo" class="form-control" placeholder="Tipo de rito"></div>
-            <div class="col-md-1 d-flex"><input id="rito_data" type="date" class="form-control"></div>
+            <div class="col-md-5"><select id="rito_catequizando" class="form-select"></select></div>
+            <div class="col-md-2"><input id="rito_tipo" class="form-control" placeholder="Tipo de rito"></div>
+            <div class="col-md-1"><input id="rito_data" type="date" class="form-control"></div>
           </div>
           <input type="hidden" id="rito_row">
-          <div class="mt-2 text-end"><button class="btn btn-success">Salvar Rito</button></div>
+          <div class="text-end mt-2"><button class="btn btn-success" type="submit">Salvar</button></div>
         </form>
       </div>
 
       <div class="card-box">
-        <div class="table-responsive"><table id="ritoTable" class="table table-sm mb-0"></table></div>
-        <div id="ritoMobile" class="d-block d-md-none mt-2"></div>
+        <div class="table-responsive desktop-table"><table id="ritoTable" class="table table-sm mb-0"></table></div>
+        <div id="ritoMobile" class="mobile-cards"></div>
       </div>
     </div>
-
   </div>
 
-  <!-- Modal (edição genérica - usamos para catequizando/presenca/rito/turma) -->
+  <!-- EDIT MODAL (reused for multiple types) -->
   <div class="modal fade" id="editModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="modalTitle">Editar</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
-        <div class="modal-body" id="modalBody">
-          <!-- conteúdo dinamicamente inserido -->
-        </div>
+        <div class="modal-body" id="modalBody"></div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-          <button id="modalSaveBtn" class="btn btn-primary">Salvar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          <button id="modalSaveBtn" type="button" class="btn btn-primary">Salvar</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Bootstrap JS (modal) -->
+  <!-- Bootstrap bundle (modal) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <script>
-  /* ----------------- CONFIG ----------------- */
-  const API_URL = "https://sheetdb.io/api/v1/a7deww2pd3giv";
-  let state = { turmas:[], cate:[], pres:[], ritos:[] };
-  const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+<script>
+/* ---------- CONFIG ---------- */
+const API_URL = "https://sheetdb.io/api/v1/a7deww2pd3giv";
+const state = { turmas:[], cate:[], pres:[], ritos:[] };
+const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+let chartPres = null, chartRitos = null;
 
-  /* ---------- UTILIDADES ---------- */
-  function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
-  function showPage(ev){
-    if(ev) ev.preventDefault();
-    const target = ev ? ev.currentTarget.dataset.page : 'dashboard';
-    document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active'));
-    if(ev) ev.currentTarget.classList.add('active');
-    document.querySelectorAll('.page').forEach(p=>p.style.display='none');
-    document.getElementById('page-'+target).style.display='block';
-    document.getElementById('pageTitle').innerText = target[0].toUpperCase()+target.slice(1);
-    // refresh small lists if needed
-    if(target==='turmas') renderTurmas();
-    if(target==='catequizandos') renderCatequizandos();
-    if(target==='presencas') renderPresencas();
-    if(target==='ritos') renderRitos();
-    if(window.innerWidth < 900) document.getElementById('sidebar').classList.remove('open');
-  }
+/* ---------- UI utils ---------- */
+function q(sel, ctx=document) { return ctx.querySelector(sel); }
+function qa(sel, ctx=document) { return Array.from(ctx.querySelectorAll(sel)); }
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+function setActiveNav(page){ qa('.nav-link').forEach(a=>a.classList.remove('active')); qa(`.nav-link[data-page="${page}"]`).forEach(a=>a.classList.add('active')); }
 
-  // call on small screen hamburger
-  document.getElementById('hambtn')?.addEventListener('click', toggleSidebar);
+/* Sidebar & page switching */
+qa('.nav-link').forEach(a=>{
+  a.addEventListener('click', e=>{
+    e.preventDefault();
+    const page = a.dataset.page;
+    openPage(page);
+    if(window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
+  });
+});
+document.getElementById('hambBtn').addEventListener('click', toggleSidebar);
+function openPage(page){
+  setActiveNav(page);
+  q('#pageTitle').innerText = page.charAt(0).toUpperCase() + page.slice(1);
+  qa('.page').forEach(p=>p.style.display='none');
+  q(`#page-${page}`).style.display='block';
+  // render current
+  if(page==='turmas') renderTurmas();
+  if(page==='catequizandos') renderCatequizandos();
+  if(page==='presencas') renderPresencas();
+  if(page==='ritos') renderRitos();
+}
 
-  /* ---------- CALCULO IDADE ---------- */
-  function calcularIdade(){
-    const v = document.getElementById('cat_data_nasc').value;
-    if(!v) { document.getElementById('cat_idade').value=''; return; }
-    const nasc = new Date(v), hoje = new Date();
-    let idade = hoje.getFullYear() - nasc.getFullYear();
-    const m = hoje.getMonth() - nasc.getMonth();
-    if(m < 0 || (m===0 && hoje.getDate() < nasc.getDate())) idade--;
-    document.getElementById('cat_idade').value = idade;
-  }
+/* ---------- API helpers ---------- */
+async function apiGet(sheet){
+  const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`);
+  if(!res.ok) return [];
+  return res.json();
+}
+async function apiPost(sheet, payload){
+  return fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`,{
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data: payload})
+  });
+}
+async function apiPut(row, sheet, payload){
+  return fetch(`${API_URL}/${row}?sheet=${encodeURIComponent(sheet)}`, {
+    method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data: payload})
+  });
+}
+async function apiDelete(row, sheet){
+  return fetch(`${API_URL}/${row}?sheet=${encodeURIComponent(sheet)}`, { method:'DELETE' });
+}
 
-  /* ---------- FETCH / CRUD helpers ---------- */
-  async function apiGet(sheet){
-    const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`);
-    return res.ok ? res.json() : [];
-  }
-  async function apiPost(sheet, payload){
-    const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`,{
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data:payload})
-    });
-    return res;
-  }
-  async function apiPut(row, sheet, payload){
-    const res = await fetch(`${API_URL}/${row}?sheet=${encodeURIComponent(sheet)}`,{
-      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data:payload})
-    });
-    return res;
-  }
-  async function apiDelete(row, sheet){
-    const res = await fetch(`${API_URL}/${row}?sheet=${encodeURIComponent(sheet)}`,{ method:'DELETE' });
-    return res;
-  }
+/* ---------- Load all data ---------- */
+async function loadAll(){
+  // fetch sheets in parallel
+  const [turmas, cate, pres, ritos] = await Promise.all([
+    apiGet('Turmas'), apiGet('Catequizandos'), apiGet('Presencas'), apiGet('Ritos')
+  ]);
+  state.turmas = turmas || [];
+  state.cate = cate || [];
+  state.pres = pres || [];
+  state.ritos = ritos || [];
+  renderDashboard(); fillSelects(); renderTurmas(); renderCatequizandos(); renderPresencas(); renderRitos();
+}
 
-  /* ---------- LOAD ALL ---------- */
-  async function loadAll(){
-    // load each sheet
-    state.turmas = await apiGet('Turmas');
-    state.cate = await apiGet('Catequizandos');
-    state.pres = await apiGet('Presencas');
-    state.ritos = await apiGet('Ritos');
-    // render UI
-    renderTurmas(); renderCatequizandos(); renderPresencas(); renderRitos(); renderDashboard();
-    fillSelects();
-  }
+/* ---------- Dashboard & charts ---------- */
+function renderDashboard(){
+  q('#dashTurmas').innerText = state.turmas.length;
+  q('#dashCatequs').innerText = state.cate.length;
+  q('#dashPres').innerText = state.pres.length;
+  q('#dashRitos').innerText = state.ritos.length;
+  renderChartPresencas();
+  renderChartRitos();
+}
+function renderChartPresencas(){
+  // count presences per turma (status=Presente)
+  const presentCounts = {};
+  state.pres.forEach(p=>{
+    if((p.status||'').toLowerCase().includes('pres')) presentCounts[p.turma] = (presentCounts[p.turma]||0) + 1;
+  });
+  const labels = Object.keys(presentCounts);
+  const data = labels.map(l=>presentCounts[l]);
+  const ctx = q('#chartPresencas').getContext('2d');
+  if(chartPres) chartPres.destroy();
+  chartPres = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{label:'Presenças (Presentes)', data, backgroundColor: 'rgba(47,158,68,0.8)'}] },
+    options:{ responsive:true, plugins:{legend:{display:false}} }
+  });
+}
+function renderChartRitos(){
+  const counts = {};
+  state.ritos.forEach(r=>{ counts[r.tipo] = (counts[r.tipo]||0) + 1; });
+  const labels = Object.keys(counts);
+  const data = labels.map(l=>counts[l]);
+  const ctx = q('#chartRitos').getContext('2d');
+  if(chartRitos) chartRitos.destroy();
+  chartRitos = new Chart(ctx, {
+    type:'pie',
+    data:{ labels, datasets:[{data, backgroundColor: labels.map((_,i)=>`hsl(${i*60%360} 70% 50%)`)}] },
+    options:{ responsive:true }
+  });
+}
 
-  /* ---------- DASHBOARD ---------- */
-  function renderDashboard(){
-    document.getElementById('dashTurmas').innerText = state.turmas.length;
-    document.getElementById('dashCatequs').innerText = state.cate.length;
-    document.getElementById('dashPres').innerText = state.pres.length;
-    document.getElementById('dashRitos').innerText = state.ritos.length;
-  }
+/* ---------- Fill selects ---------- */
+function fillSelects(){
+  const opts = state.turmas.map(t=>`<option value="${t.nome}">${t.nome}</option>`).join('');
+  qa('#cat_turma, #pres_turma, #rito_turma').forEach(s=>{ if(s) s.innerHTML = opts; });
+  loadCatequizandoSelectForPresence();
+  loadCatequizandoSelectForRito();
+}
 
-  /* ---------- TURMAS ---------- */
-  async function saveTurma(){
-    const nome = document.getElementById('turma_nome').value.trim();
-    const catequista = document.getElementById('turma_catequista').value.trim();
-    const horario = document.getElementById('turma_horario').value.trim();
-    if(!nome) return alert('Informe nome da turma');
-    await apiPost('Turmas',{nome,catequista,horario});
-    document.getElementById('turma_nome').value=''; document.getElementById('turma_catequista').value=''; document.getElementById('turma_horario').value='';
-    await loadAll();
-    showPage({preventDefault:()=>{}, currentTarget: document.querySelector('[data-page="turmas"]')});
-  }
-
-  function renderTurmas(){
-    const q = (document.getElementById('searchTurmas')?.value||'').toLowerCase();
-    const rows = state.turmas.filter(t => (t.nome||'').toLowerCase().includes(q) || (t.catequista||'').toLowerCase().includes(q));
-    // desktop table
-    let html = `<thead><tr><th>Nome</th><th>Catequista</th><th>Horário</th><th>Ações</th></tr></thead><tbody>`;
-    rows.forEach(t=>{
-      html += `<tr>
-        <td>${t.nome||''}</td>
-        <td>${t.catequista||''}</td>
-        <td>${t.horario||''}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-primary" onclick='openEditTurma(${JSON.stringify(t).replace(/'/g,"&#39;")})'>Editar</button>
-          <button class="btn btn-sm btn-outline-danger" onclick='deleteTurma("${t.row}")'>Excluir</button>
-        </td>
-      </tr>`;
-    });
-    html += `</tbody>`;
-    document.getElementById('turmasTable').innerHTML = html;
-
-    // mobile cards
-    const mobile = rows.map(t=>`<div class="table-card">
+/* ---------- Turmas CRUD + render ---------- */
+q('#formTurma')?.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const nome = q('#turma_nome').value.trim();
+  const catequista = q('#turma_catequista').value.trim();
+  const horario = q('#turma_horario').value.trim();
+  if(!nome) return alert('Nome da turma obrigatório');
+  await apiPost('Turmas', { nome, catequista, horario });
+  q('#turma_nome').value=''; q('#turma_catequista').value=''; q('#turma_horario').value='';
+  await loadAll();
+});
+function renderTurmas(){
+  const qv = (q('#searchTurmas')?.value||'').toLowerCase();
+  const rows = state.turmas.filter(t=>(t.nome||'').toLowerCase().includes(qv) || (t.catequista||'').toLowerCase().includes(qv));
+  // desktop table
+  let html = `<thead><tr><th>Nome</th><th>Catequista</th><th>Horário</th><th>Ações</th></tr></thead><tbody>`;
+  rows.forEach(t=>{
+    html += `<tr>
+      <td>${t.nome||''}</td>
+      <td>${t.catequista||''}</td>
+      <td>${t.horario||''}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" data-row="${t.row}" data-type="turma-edit">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-row="${t.row}" data-type="turma-del">Excluir</button>
+      </td>
+    </tr>`;
+  });
+  html += `</tbody>`;
+  q('#turmasTable').innerHTML = html;
+  // mobile cards
+  q('#turmasMobile').innerHTML = rows.map(t=>`
+    <div class="table-card">
       <div><strong>${t.nome||''}</strong></div>
       <div class="small-muted">${t.catequista||''} • ${t.horario||''}</div>
-      <div class="mt-2"><button class="btn btn-sm btn-outline-primary" onclick='openEditTurma(${JSON.stringify(t).replace(/'/g,"&#39;")})'>Editar</button>
-      <button class="btn btn-sm btn-outline-danger" onclick='deleteTurma("${t.row}")'>Excluir</button></div>
-    </div>`).join('');
-    document.getElementById('turmasMobile').innerHTML = mobile;
+      <div class="mt-2">
+        <button class="btn btn-sm btn-outline-primary" data-row="${t.row}" data-type="turma-edit">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-row="${t.row}" data-type="turma-del">Excluir</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ---------- Catequizandos CRUD + render ---------- */
+q('#formCate')?.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  await saveCatequizando();
+});
+async function saveCatequizando(){
+  const nome = q('#cat_nome').value.trim();
+  const data_nasc = q('#cat_data_nasc').value;
+  const idade = q('#cat_idade').value;
+  const turma = q('#cat_turma').value;
+  const responsavel = q('#cat_responsavel').value.trim();
+  const contato_responsavel = q('#cat_contato_responsavel').value.trim();
+  const observacao = q('#cat_observacao').value.trim();
+  const row = q('#cat_row').value;
+  if(!nome) return alert('Nome é obrigatório');
+  const payload = { nome, data_nasc, idade, turma, responsavel, contato_responsavel, observacao };
+  if(row){
+    await apiPut(row, 'Catequizandos', payload);
+  } else {
+    await apiPost('Catequizandos', payload);
   }
-
-  function openEditTurma(t){
-    // build modal body
-    document.getElementById('modalTitle').innerText = 'Editar Turma';
-    document.getElementById('modalBody').innerHTML = `
-      <div class="mb-2"><label>Nome</label><input id="m_t_nome" class="form-control" value="${t.nome||''}"></div>
-      <div class="mb-2"><label>Catequista</label><input id="m_t_cate" class="form-control" value="${t.catequista||''}"></div>
-      <div class="mb-2"><label>Horário</label><input id="m_t_hor" class="form-control" value="${t.horario||''}"></div>
-      <input type="hidden" id="m_t_row" value="${t.row}">
-    `;
-    document.getElementById('modalSaveBtn').onclick = async ()=>{
-      const row = document.getElementById('m_t_row').value;
-      const nome = document.getElementById('m_t_nome').value;
-      const catequista = document.getElementById('m_t_cate').value;
-      const horario = document.getElementById('m_t_hor').value;
-      await apiPut(row,'Turmas',{nome,catequista,horario});
-      editModal.hide();
-      await loadAll();
-    };
-    editModal.show();
-  }
-
-  async function deleteTurma(row){
-    if(!confirm('Excluir turma?')) return;
-    await apiDelete(row,'Turmas');
-    await loadAll();
-  }
-
-  /* ---------- CATEQUIZANDOS ---------- */
-  async function saveCatequizando(){
-    const nome = document.getElementById('cat_nome').value.trim();
-    const data_nasc = document.getElementById('cat_data_nasc').value;
-    const idade = document.getElementById('cat_idade').value;
-    const turma = document.getElementById('cat_turma').value;
-    const responsavel = document.getElementById('cat_responsavel').value.trim();
-    const contato_responsavel = document.getElementById('cat_contato_responsavel').value.trim();
-    const observacao = document.getElementById('cat_observacao').value.trim();
-    const row = document.getElementById('cat_row').value;
-
-    if(!nome) return alert('Nome é obrigatório');
-    const payload = {nome,data_nasc,idade,turma,responsavel,contato_responsavel,observacao};
-
-    if(row){
-      await apiPut(row,'Catequizandos',payload);
-    } else {
-      await apiPost('Catequizandos', payload);
-    }
-
-    // limpar
-    ['cat_nome','cat_data_nasc','cat_idade','cat_turma','cat_responsavel','cat_contato_responsavel','cat_observacao','cat_row']
-      .forEach(id=>document.getElementById(id).value='');
-
-    await loadAll();
-    showPage({preventDefault:()=>{}, currentTarget: document.querySelector('[data-page="catequizandos"]')});
-  }
-
-  function renderCatequizandos(){
-    const q = (document.getElementById('searchCate')?.value||'').toLowerCase();
-    const rows = state.cate.filter(c => (c.nome||'').toLowerCase().includes(q) || (c.turma||'').toLowerCase().includes(q));
-    let html = `<thead><tr><th>Nome</th><th>Turma</th><th>Idade</th><th>Responsável</th><th>Ações</th></tr></thead><tbody>`;
-    rows.forEach(c=>{
-      html += `<tr>
-        <td>${c.nome||''}</td><td>${c.turma||''}</td><td>${c.idade||''}</td><td>${c.responsavel||''}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-primary" onclick='openEditCate(${JSON.stringify(c).replace(/'/g,"&#39;")})'>Editar</button>
-          <button class="btn btn-sm btn-outline-danger" onclick='deleteCate("${c.row}")'>Excluir</button>
-        </td>
-      </tr>`;
-    });
-    html += `</tbody>`;
-    document.getElementById('cateTable').innerHTML = html;
-
-    // mobile
-    const mobile = rows.map(c=>`<div class="table-card">
+  // clear
+  ['#cat_nome','#cat_data_nasc','#cat_idade','#cat_turma','#cat_responsavel','#cat_contato_responsavel','#cat_observacao','#cat_row'].forEach(id=>{ if(q(id)) q(id).value=''; });
+  await loadAll();
+}
+function renderCatequizandos(){
+  const qv = (q('#searchCate')?.value||'').toLowerCase();
+  const rows = state.cate.filter(c=> (c.nome||'').toLowerCase().includes(qv) || (c.turma||'').toLowerCase().includes(qv) );
+  let html = `<thead><tr><th>Nome</th><th>Turma</th><th>Idade</th><th>Responsável</th><th>Ações</th></tr></thead><tbody>`;
+  rows.forEach(c=>{
+    html += `<tr>
+      <td>${c.nome||''}</td>
+      <td>${c.turma||''}</td>
+      <td>${c.idade||''}</td>
+      <td>${c.responsavel||''}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" data-row="${c.row}" data-type="cate-edit">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-row="${c.row}" data-type="cate-del">Excluir</button>
+      </td>
+    </tr>`;
+  });
+  html += `</tbody>`;
+  q('#cateTable').innerHTML = html;
+  // mobile cards
+  q('#cateMobile').innerHTML = rows.map(c=>`
+    <div class="table-card">
       <div><strong>${c.nome||''}</strong> <span class="small-muted">(${c.turma||''})</span></div>
       <div>${c.idade||''} anos • ${c.responsavel||''}</div>
       <div class="mt-2">
-        <button class="btn btn-sm btn-outline-primary" onclick='openEditCate(${JSON.stringify(c).replace(/'/g,"&#39;")})'>Editar</button>
-        <button class="btn btn-sm btn-outline-danger" onclick='deleteCate("${c.row}")'>Excluir</button>
+        <button class="btn btn-sm btn-outline-primary" data-row="${c.row}" data-type="cate-edit">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-row="${c.row}" data-type="cate-del">Excluir</button>
       </div>
     </div>`).join('');
-    document.getElementById('cateMobile').innerHTML = mobile;
-  }
+}
 
-  function openEditCate(c){
-    // populate modal
-    document.getElementById('modalTitle').innerText = 'Editar Catequizando';
-    document.getElementById('modalBody').innerHTML = `
-      <div class="row g-2">
-        <div class="col-md-6"><label>Nome</label><input id="m_c_nome" class="form-control" value="${c.nome||''}"></div>
-        <div class="col-md-3"><label>Data Nasc</label><input id="m_c_nasc" type="date" class="form-control" value="${c.data_nasc||''}"></div>
-        <div class="col-md-3"><label>Idade</label><input id="m_c_idade" class="form-control" readonly value="${c.idade||''}"></div>
-        <div class="col-md-6"><label>Turma</label><select id="m_c_turma" class="form-select"></select></div>
-        <div class="col-md-6"><label>Responsável</label><input id="m_c_resp" class="form-control" value="${c.responsavel||''}"></div>
-        <div class="col-md-6"><label>Contato</label><input id="m_c_cont" class="form-control" value="${c.contato_responsavel||''}"></div>
-        <div class="col-12"><label>Observação</label><textarea id="m_c_obs" class="form-control">${c.observacao||''}</textarea></div>
-        <input type="hidden" id="m_c_row" value="${c.row}">
-      </div>
-    `;
-    // fill turma options
-    const selHtml = state.turmas.map(t => `<option ${t.nome===c.turma ? 'selected':''} value="${t.nome}">${t.nome}</option>`).join('');
-    setTimeout(()=>{ document.getElementById('m_c_turma').innerHTML = selHtml; }, 50);
-
-    document.getElementById('modalSaveBtn').onclick = async ()=>{
-      const row = document.getElementById('m_c_row').value;
-      const nome = document.getElementById('m_c_nome').value;
-      const data_nasc = document.getElementById('m_c_nasc').value;
-      const idade = document.getElementById('m_c_idade').value;
-      const turma = document.getElementById('m_c_turma').value;
-      const responsavel = document.getElementById('m_c_resp').value;
-      const contato = document.getElementById('m_c_cont').value;
-      const observacao = document.getElementById('m_c_obs').value;
-      await apiPut(row,'Catequizandos',{nome,data_nasc,idade,turma,responsavel,contato_responsavel:contato,observacao});
-      editModal.hide();
-      await loadAll();
-    };
-    editModal.show();
-  }
-
-  async function deleteCate(row){
-    if(!confirm('Excluir catequizando?')) return;
-    await apiDelete(row,'Catequizandos');
-    await loadAll();
-  }
-
-  /* ---------- PRESENÇAS ---------- */
-  async function loadCatequizandoSelectForPresence(){
-    const turma = document.getElementById('pres_turma').value;
-    const opts = state.cate.filter(c=>c.turma===turma).map(c=>`<option value="${c.nome}">${c.nome}</option>`).join('');
-    document.getElementById('pres_catequizando').innerHTML = opts;
-  }
-
-  async function savePresenca(){
-    const catequizando = document.getElementById('pres_catequizando').value;
-    const turma = document.getElementById('pres_turma').value;
-    const data = document.getElementById('pres_data').value;
-    const status = document.getElementById('pres_status').value;
-    if(!catequizando || !turma || !data) return alert('Preencha os campos');
-    await apiPost('Presencas',{catequizando,turma,data,status});
-    document.getElementById('pres_data').value='';
-    await loadAll();
-  }
-
-  function renderPresencas(){
-    const q = (document.getElementById('searchPres')?.value||'').toLowerCase();
-    const rows = state.pres.filter(p => (p.turma||'').toLowerCase().includes(q) || (p.data||'').toLowerCase().includes(q));
-    let html = `<thead><tr><th>Data</th><th>Turma</th><th>Catequizando</th><th>Status</th><th>Ações</th></tr></thead><tbody>`;
-    rows.forEach(p=>{
-      html += `<tr>
-        <td>${p.data||''}</td><td>${p.turma||''}</td><td>${p.catequizando||''}</td><td>${p.status||''}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-primary" onclick='openEditPres(${JSON.stringify(p).replace(/'/g,"&#39;")})'>Editar</button>
-          <button class="btn btn-sm btn-outline-danger" onclick='deletePres("${p.row}")'>Excluir</button>
-        </td>
-      </tr>`;
-    });
-    html += `</tbody>`;
-    document.getElementById('presTable').innerHTML = html;
-    const mobile = rows.map(p=>`<div class="table-card">
+/* ---------- Presenças CRUD + render ---------- */
+q('#formPres')?.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  await savePresenca();
+});
+async function loadCatequizandoSelectForPresence(){
+  const turma = q('#pres_turma')?.value;
+  if(!turma) return;
+  const opts = state.cate.filter(c=>c.turma===turma).map(c=>`<option value="${c.nome}">${c.nome}</option>`).join('');
+  if(q('#pres_catequizando')) q('#pres_catequizando').innerHTML = opts;
+}
+async function savePresenca(){
+  const catequizando = q('#pres_catequizando').value;
+  const turma = q('#pres_turma').value;
+  const data = q('#pres_data').value;
+  const status = q('#pres_status').value;
+  if(!catequizando || !turma || !data) return alert('Preencha os campos');
+  await apiPost('Presencas', { catequizando, turma, data, status });
+  q('#pres_data').value='';
+  await loadAll();
+}
+function renderPresencas(){
+  const qv = (q('#searchPres')?.value||'').toLowerCase();
+  const rows = state.pres.filter(p=> (p.turma||'').toLowerCase().includes(qv) || (p.data||'').toLowerCase().includes(qv) );
+  let html = `<thead><tr><th>Data</th><th>Turma</th><th>Catequiz.</th><th>Status</th><th>Ações</th></tr></thead><tbody>`;
+  rows.forEach(p=>{
+    html += `<tr>
+      <td>${p.data||''}</td><td>${p.turma||''}</td><td>${p.catequizando||''}</td><td>${p.status||''}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" data-row="${p.row}" data-type="pres-edit">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-row="${p.row}" data-type="pres-del">Excluir</button>
+      </td>
+    </tr>`;
+  });
+  html += `</tbody>`;
+  q('#presTable').innerHTML = html;
+  q('#presMobile').innerHTML = rows.map(p=>`
+    <div class="table-card">
       <div><strong>${p.catequizando||''}</strong> <span class="small-muted">${p.turma||''}</span></div>
       <div>${p.data||''} • ${p.status||''}</div>
-      <div class="mt-2"><button class="btn btn-sm btn-outline-primary" onclick='openEditPres(${JSON.stringify(p).replace(/'/g,"&#39;")})'>Editar</button>
-      <button class="btn btn-sm btn-outline-danger" onclick='deletePres("${p.row}")'>Excluir</button></div>
+      <div class="mt-2">
+        <button class="btn btn-sm btn-outline-primary" data-row="${p.row}" data-type="pres-edit">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-row="${p.row}" data-type="pres-del">Excluir</button>
+      </div>
     </div>`).join('');
-    document.getElementById('presMobile').innerHTML = mobile;
-  }
+}
 
-  function openEditPres(p){
-    document.getElementById('modalTitle').innerText = 'Editar Presença';
-    document.getElementById('modalBody').innerHTML = `
-      <div class="mb-2"><label>Data</label><input id="m_p_data" type="date" class="form-control" value="${p.data||''}"></div>
-      <div class="mb-2"><label>Turma</label><select id="m_p_turma" class="form-select"></select></div>
-      <div class="mb-2"><label>Catequizando</label><select id="m_p_cat" class="form-select"></select></div>
-      <div class="mb-2"><label>Status</label><select id="m_p_status" class="form-select"><option ${p.status==='Presente'?'selected':''}>Presente</option><option ${p.status==='Faltou'?'selected':''}>Faltou</option></select></div>
-      <input type="hidden" id="m_p_row" value="${p.row}">
-    `;
-    setTimeout(()=>{
-      document.getElementById('m_p_turma').innerHTML = state.turmas.map(t=>`<option ${t.nome===p.turma?'selected':''} value="${t.nome}">${t.nome}</option>`).join('');
-      loadCatOptionsForModal('m_p_turma','m_p_cat',p.catequizando);
-    },50);
-
-    document.getElementById('m_p_turma')?.addEventListener('change', ()=> loadCatOptionsForModal('m_p_turma','m_p_cat',p.catequizando) );
-
-    document.getElementById('modalSaveBtn').onclick = async ()=>{
-      const row = document.getElementById('m_p_row').value;
-      const data = document.getElementById('m_p_data').value;
-      const turma = document.getElementById('m_p_turma').value;
-      const catequizando = document.getElementById('m_p_cat').value;
-      const status = document.getElementById('m_p_status').value;
-      await apiPut(row,'Presencas',{catequizando,turma,data,status});
-      editModal.hide(); await loadAll();
-    };
-    editModal.show();
-  }
-
-  async function loadCatOptionsForModal(turmaSelId, catSelId, selected){
-    const turma = document.getElementById(turmaSelId).value;
-    const opts = state.cate.filter(c=>c.turma===turma).map(c=>`<option ${c.nome===selected?'selected':''} value="${c.nome}">${c.nome}</option>`).join('');
-    document.getElementById(catSelId).innerHTML = opts;
-  }
-
-  async function deletePres(row){
-    if(!confirm('Excluir presença?')) return;
-    await apiDelete(row,'Presencas'); await loadAll();
-  }
-
-  /* ---------- RITOS ---------- */
-  async function loadCatequizandoSelectForRito(){
-    const turma = document.getElementById('rito_turma').value;
-    const opts = state.cate.filter(c=>c.turma===turma).map(c=>`<option value="${c.nome}">${c.nome}</option>`).join('');
-    document.getElementById('rito_catequizando').innerHTML = opts;
-  }
-
-  async function saveRito(){
-    const catequizando = document.getElementById('rito_catequizando').value;
-    const turma = document.getElementById('rito_turma').value;
-    const tipo = document.getElementById('rito_tipo').value;
-    const data = document.getElementById('rito_data').value;
-    const row = document.getElementById('rito_row').value;
-    if(!catequizando || !tipo) return alert('Preencha os campos');
-    const payload = {catequizando,turma,tipo,data};
-    if(row) await apiPut(row,'Ritos',payload);
-    else await apiPost('Ritos',payload);
-    document.getElementById('rito_tipo').value=''; document.getElementById('rito_data').value=''; document.getElementById('rito_row').value='';
-    await loadAll();
-  }
-
-  function renderRitos(){
-    const q = (document.getElementById('searchRitos')?.value||'').toLowerCase();
-    const rows = state.ritos.filter(r => (r.catequizando||'').toLowerCase().includes(q) || (r.turma||'').toLowerCase().includes(q) || (r.tipo||'').toLowerCase().includes(q));
-    let html = `<thead><tr><th>Data</th><th>Turma</th><th>Catequizando</th><th>Rito</th><th>Ações</th></tr></thead><tbody>`;
-    rows.forEach(r=>{
-      html += `<tr>
-        <td>${r.data||''}</td><td>${r.turma||''}</td><td>${r.catequizando||''}</td><td>${r.tipo||''}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-primary" onclick='openEditRito(${JSON.stringify(r).replace(/'/g,"&#39;")})'>Editar</button>
-          <button class="btn btn-sm btn-outline-danger" onclick='deleteRito("${r.row}")'>Excluir</button>
-        </td>
-      </tr>`;
-    });
-    html += `</tbody>`;
-    document.getElementById('ritoTable').innerHTML = html;
-    const mobile = rows.map(r=>`<div class="table-card">
+/* ---------- Ritos CRUD + render ---------- */
+q('#formRito')?.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  await saveRito();
+});
+async function loadCatequizandoSelectForRito(){
+  const turma = q('#rito_turma')?.value;
+  if(!turma) { if(q('#rito_catequizando')) q('#rito_catequizando').innerHTML=''; return; }
+  const opts = state.cate.filter(c=>c.turma===turma).map(c=>`<option value="${c.nome}">${c.nome}</option>`).join('');
+  if(q('#rito_catequizando')) q('#rito_catequizando').innerHTML = opts;
+}
+async function saveRito(){
+  const catequizando = q('#rito_catequizando').value;
+  const turma = q('#rito_turma').value;
+  const tipo = q('#rito_tipo').value;
+  const data = q('#rito_data').value;
+  const row = q('#rito_row').value;
+  if(!catequizando || !tipo) return alert('Preencha catequizando e tipo');
+  const payload = { catequizando, turma, tipo, data };
+  if(row) await apiPut(row, 'Ritos', payload); else await apiPost('Ritos', payload);
+  q('#rito_tipo').value=''; q('#rito_data').value=''; q('#rito_row').value='';
+  await loadAll();
+}
+function renderRitos(){
+  const qv = (q('#searchRitos')?.value||'').toLowerCase();
+  const rows = state.ritos.filter(r=> (r.catequizando||'').toLowerCase().includes(qv) || (r.tipo||'').toLowerCase().includes(qv) );
+  let html = `<thead><tr><th>Data</th><th>Turma</th><th>Catequizando</th><th>Tipo</th><th>Ações</th></tr></thead><tbody>`;
+  rows.forEach(r=>{
+    html += `<tr>
+      <td>${r.data||''}</td><td>${r.turma||''}</td><td>${r.catequizando||''}</td><td>${r.tipo||''}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" data-row="${r.row}" data-type="rito-edit">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-row="${r.row}" data-type="rito-del">Excluir</button>
+      </td>
+    </tr>`;
+  });
+  html += `</tbody>`;
+  q('#ritoTable').innerHTML = html;
+  q('#ritoMobile').innerHTML = rows.map(r=>`
+    <div class="table-card">
       <div><strong>${r.tipo||''}</strong> <span class="small-muted">(${r.turma||''})</span></div>
       <div>${r.catequizando||''} • ${r.data||''}</div>
-      <div class="mt-2"><button class="btn btn-sm btn-outline-primary" onclick='openEditRito(${JSON.stringify(r).replace(/'/g,"&#39;")})'>Editar</button>
-      <button class="btn btn-sm btn-outline-danger" onclick='deleteRito("${r.row}")'>Excluir</button></div>
+      <div class="mt-2">
+        <button class="btn btn-sm btn-outline-primary" data-row="${r.row}" data-type="rito-edit">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-row="${r.row}" data-type="rito-del">Excluir</button>
+      </div>
     </div>`).join('');
-    document.getElementById('ritoMobile').innerHTML = mobile;
+}
+
+/* ---------- Event delegation for edit/delete buttons ---------- */
+document.addEventListener('click', async (e)=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const type = btn.dataset.type;
+  const row = btn.dataset.row;
+  if(!type) return;
+
+  // TURMA edit/delete
+  if(type==='turma-edit'){
+    const t = state.turmas.find(x=>x.row===row); openEditTurmaModal(t);
+  } else if(type==='turma-del'){
+    if(confirm('Excluir turma?')){ await apiDelete(row,'Turmas'); await loadAll(); }
   }
 
-  function openEditRito(r){
-    document.getElementById('modalTitle').innerText = 'Editar Rito';
-    document.getElementById('modalBody').innerHTML = `
-      <div class="mb-2"><label>Turma</label><select id="m_r_turma" class="form-select"></select></div>
-      <div class="mb-2"><label>Catequizando</label><select id="m_r_cat" class="form-select"></select></div>
-      <div class="mb-2"><label>Tipo</label><input id="m_r_tipo" class="form-control" value="${r.tipo||''}"></div>
-      <div class="mb-2"><label>Data</label><input id="m_r_data" type="date" class="form-control" value="${r.data||''}"></div>
-      <input type="hidden" id="m_r_row" value="${r.row}">
-    `;
-    setTimeout(()=>{
-      document.getElementById('m_r_turma').innerHTML = state.turmas.map(t=>`<option ${t.nome===r.turma?'selected':''} value="${t.nome}">${t.nome}</option>`).join('');
-      loadCatOptionsForModal('m_r_turma','m_r_cat', r.catequizando);
-    },50);
-    document.getElementById('m_r_turma')?.addEventListener('change', ()=> loadCatOptionsForModal('m_r_turma','m_r_cat', r.catequizando) );
-
-    document.getElementById('modalSaveBtn').onclick = async ()=>{
-      const row = document.getElementById('m_r_row').value;
-      const turma = document.getElementById('m_r_turma').value;
-      const catequizando = document.getElementById('m_r_cat').value;
-      const tipo = document.getElementById('m_r_tipo').value;
-      const data = document.getElementById('m_r_data').value;
-      await apiPut(row,'Ritos',{catequizando,turma,tipo,data});
-      editModal.hide(); await loadAll();
-    };
-    editModal.show();
+  // CATEQUIZANDO edit/delete
+  else if(type==='cate-edit'){
+    const c = state.cate.find(x=>x.row===row); openEditCateModal(c);
+  } else if(type==='cate-del'){
+    if(confirm('Excluir catequizando?')){ await apiDelete(row,'Catequizandos'); await loadAll(); }
   }
 
-  async function deleteRito(row){
-    if(!confirm('Excluir rito?')) return;
-    await apiDelete(row,'Ritos'); await loadAll();
+  // PRESENÇA edit/delete
+  else if(type==='pres-edit'){
+    const p = state.pres.find(x=>x.row===row); openEditPresModal(p);
+  } else if(type==='pres-del'){
+    if(confirm('Excluir presença?')){ await apiDelete(row,'Presencas'); await loadAll(); }
   }
 
-  /* ---------- AUX: preencher selects ---------- */
-  function fillSelects(){
-    // turmas for many selects
-    const opts = state.turmas.map(t=>`<option value="${t.nome}">${t.nome}</option>`).join('');
-    document.querySelectorAll('#cat_turma, #pres_turma, #rito_turma, #turmaCatequizando, #turmaPresenca, #turmaRito').forEach(s=>{
-      if(s) s.innerHTML = opts;
-    });
-    // ensure presence select refreshed
-    loadCatequizandoSelectForPresence();
-    loadCatequizandoSelectForRito();
+  // RITO edit/delete
+  else if(type==='rito-edit'){
+    const r = state.ritos.find(x=>x.row===row); openEditRitoModal(r);
+  } else if(type==='rito-del'){
+    if(confirm('Excluir rito?')){ await apiDelete(row,'Ritos'); await loadAll(); }
   }
+});
 
-  /* ---------- INIT ---------- */
-  async function init(){
-    await loadAll();
-    // attach global event listeners after load
-    document.getElementById('searchTurmas')?.addEventListener('input', renderTurmas);
-    document.getElementById('searchCate')?.addEventListener('input', renderCatequizandos);
-    document.getElementById('searchPres')?.addEventListener('input', renderPresencas);
-    document.getElementById('searchRitos')?.addEventListener('input', renderRitos);
+/* ---------- Modals for editing ---------- */
+function openEditTurmaModal(t){
+  q('#modalTitle').innerText = 'Editar Turma';
+  q('#modalBody').innerHTML = `
+    <div class="mb-2"><label>Nome</label><input id="m_t_nome" class="form-control" value="${t.nome||''}"></div>
+    <div class="mb-2"><label>Catequista</label><input id="m_t_cate" class="form-control" value="${t.catequista||''}"></div>
+    <div class="mb-2"><label>Horário</label><input id="m_t_hor" class="form-control" value="${t.horario||''}"></div>
+    <input type="hidden" id="m_t_row" value="${t.row}">
+  `;
+  q('#modalSaveBtn').onclick = async ()=>{
+    const row = q('#m_t_row').value;
+    const nome = q('#m_t_nome').value;
+    const catequista = q('#m_t_cate').value;
+    const horario = q('#m_t_hor').value;
+    await apiPut(row,'Turmas',{nome,catequista,horario});
+    editModal.hide(); await loadAll();
+  };
+  editModal.show();
+}
 
-    // form pres submit handler (we use separate function)
-    document.getElementById('formPres')?.addEventListener('submit', async (e)=>{ e.preventDefault(); await savePresenca(); document.getElementById('pres_data').value=''; });
-  }
-  init();
-  </script>
+function openEditCateModal(c){
+  q('#modalTitle').innerText = 'Editar Catequizando';
+  q('#modalBody').innerHTML = `
+    <div class="row g-2">
+      <div class="col-md-6"><label>Nome</label><input id="m_c_nome" class="form-control" value="${c.nome||''}"></div>
+      <div class="col-md-3"><label>Data Nasc</label><input id="m_c_nasc" type="date" class="form-control" value="${c.data_nasc||''}"></div>
+      <div class="col-md-3"><label>Idade</label><input id="m_c_idade" class="form-control" value="${c.idade||''}" readonly></div>
+      <div class="col-md-6"><label>Turma</label><select id="m_c_turma" class="form-select"></select></div>
+      <div class="col-md-6"><label>Responsável</label><input id="m_c_resp" class="form-control" value="${c.responsavel||''}"></div>
+      <div class="col-md-6"><label>Contato</label><input id="m_c_cont" class="form-control" value="${c.contato_responsavel||''}"></div>
+      <div class="col-12"><label>Observação</label><textarea id="m_c_obs" class="form-control">${c.observacao||''}</textarea></div>
+      <input type="hidden" id="m_c_row" value="${c.row}">
+    </div>
+  `;
+  // fill turma options
+  setTimeout(()=> q('#m_c_turma').innerHTML = state.turmas.map(t=>`<option ${t.nome===c.turma?'selected':''} value="${t.nome}">${t.nome}</option>`).join(''), 50);
+
+  q('#modalSaveBtn').onclick = async ()=>{
+    const row = q('#m_c_row').value;
+    const nome = q('#m_c_nome').value;
+    const data_nasc = q('#m_c_nasc').value;
+    const idade = q('#m_c_idade').value;
+    const turma = q('#m_c_turma').value;
+    const responsavel = q('#m_c_resp').value;
+    const contato = q('#m_c_cont').value;
+    const observacao = q('#m_c_obs').value;
+    await apiPut(row,'Catequizandos',{nome,data_nasc,idade,turma,responsavel,contato_responsavel:contato,observacao});
+    editModal.hide(); await loadAll();
+  };
+  editModal.show();
+}
+
+function openEditPresModal(p){
+  q('#modalTitle').innerText = 'Editar Presença';
+  q('#modalBody').innerHTML = `
+    <div class="mb-2"><label>Data</label><input id="m_p_data" type="date" class="form-control" value="${p.data||''}"></div>
+    <div class="mb-2"><label>Turma</label><select id="m_p_turma" class="form-select"></select></div>
+    <div class="mb-2"><label>Catequizando</label><select id="m_p_cat" class="form-select"></select></div>
+    <div class="mb-2"><label>Status</label><select id="m_p_status" class="form-select"><option ${p.status==='Presente'?'selected':''}>Presente</option><option ${p.status==='Faltou'?'selected':''}>Faltou</option></select></div>
+    <input type="hidden" id="m_p_row" value="${p.row}">
+  `;
+  setTimeout(()=>{
+    q('#m_p_turma').innerHTML = state.turmas.map(t=>`<option ${t.nome===p.turma?'selected':''} value="${t.nome}">${t.nome}</option>`).join('');
+    loadCatOptionsForModal('m_p_turma','m_p_cat', p.catequizando);
+  },50);
+
+  q('#modalSaveBtn').onclick = async ()=>{
+    const row = q('#m_p_row').value;
+    const data = q('#m_p_data').value;
+    const turma = q('#m_p_turma').value;
+    const catequizando = q('#m_p_cat').value;
+    const status = q('#m_p_status').value;
+    await apiPut(row,'Presencas',{catequizando,turma,data,status});
+    editModal.hide(); await loadAll();
+  };
+  editModal.show();
+}
+async function loadCatOptionsForModal(turmaSelId, catSelId, selected){
+  const turma = q(`#${turmaSelId}`).value;
+  const opts = state.cate.filter(c=>c.turma===turma).map(c=>`<option ${c.nome===selected?'selected':''} value="${c.nome}">${c.nome}</option>`).join('');
+  q(`#${catSelId}`).innerHTML = opts;
+}
+
+function openEditRitoModal(r){
+  q('#modalTitle').innerText = 'Editar Rito';
+  q('#modalBody').innerHTML = `
+    <div class="mb-2"><label>Turma</label><select id="m_r_turma" class="form-select"></select></div>
+    <div class="mb-2"><label>Catequizando</label><select id="m_r_cat" class="form-select"></select></div>
+    <div class="mb-2"><label>Tipo</label><input id="m_r_tipo" class="form-control" value="${r.tipo||''}"></div>
+    <div class="mb-2"><label>Data</label><input id="m_r_data" type="date" class="form-control" value="${r.data||''}"></div>
+    <input type="hidden" id="m_r_row" value="${r.row}">
+  `;
+  setTimeout(()=>{
+    q('#m_r_turma').innerHTML = state.turmas.map(t=>`<option ${t.nome===r.turma?'selected':''} value="${t.nome}">${t.nome}</option>`).join('');
+    loadCatOptionsForModal('m_r_turma','m_r_cat', r.catequizando);
+  },50);
+
+  q('#modalSaveBtn').onclick = async ()=>{
+    const row = q('#m_r_row').value;
+    const turma = q('#m_r_turma').value;
+    const catequizando = q('#m_r_cat').value;
+    const tipo = q('#m_r_tipo').value;
+    const data = q('#m_r_data').value;
+    await apiPut(row,'Ritos',{catequizando,turma,tipo,data});
+    editModal.hide(); await loadAll();
+  };
+  editModal.show();
+}
+
+/* ---------- small helpers ---------- */
+function calcularIdade(){
+  const v = q('#cat_data_nasc')?.value;
+  if(!v) { if(q('#cat_idade')) q('#cat_idade').value=''; return; }
+  const nasc = new Date(v), hoje = new Date();
+  let idade = hoje.getFullYear() - nasc.getFullYear();
+  const m = hoje.getMonth() - nasc.getMonth();
+  if(m < 0 || (m===0 && hoje.getDate() < nasc.getDate())) idade--;
+  if(q('#cat_idade')) q('#cat_idade').value = idade;
+}
+
+/* ---------- Delegates for select changes used in modal dynamically ---------- */
+document.addEventListener('change', (e)=>{
+  if(e.target && e.target.id==='m_p_turma') loadCatOptionsForModal('m_p_turma','m_p_cat');
+  if(e.target && e.target.id==='m_r_turma') loadCatOptionsForModal('m_r_turma','m_r_cat');
+});
+
+/* ---------- Search inputs listeners ---------- */
+['searchTurmas','searchCate','searchPres','searchRitos'].forEach(id=>{
+  const el = q(`#${id}`);
+  if(el) el.addEventListener('input', ()=> {
+    if(id==='searchTurmas') renderTurmas();
+    if(id==='searchCate') renderCatequizandos();
+    if(id==='searchPres') renderPresencas();
+    if(id==='searchRitos') renderRitos();
+  });
+});
+
+/* ---------- Initial load ---------- */
+(async function init(){
+  await loadAll();
+  openPage('dashboard');
+  // wire selects change to populate dependent selects
+  if(q('#pres_turma')) q('#pres_turma').addEventListener('change', loadCatequizandoSelectForPresence);
+  if(q('#rito_turma')) q('#rito_turma').addEventListener('change', loadCatequizandoSelectForRito);
+})();
+
+</script>
 </body>
 </html>
