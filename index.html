@@ -1,322 +1,471 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema de Catequese</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4;}
-    header { background:#4CAF50; color:#fff; padding:15px 20px; text-align:center; }
-    h1 { margin:0; }
-    .container { padding:20px; max-width:1200px; margin:auto; }
-    button { cursor:pointer; padding:8px 12px; border:none; border-radius:4px; background:#4CAF50; color:#fff; margin:2px; transition:0.3s;}
-    button:hover { background:#45a049; }
-    table { width:100%; border-collapse:collapse; margin:10px 0; box-shadow:0 0 5px rgba(0,0,0,0.1);}
-    th, td { border:1px solid #ddd; padding:8px; text-align:left; }
-    th { background:#4CAF50; color:white; position: sticky; top:0; }
-    select, input, textarea { padding:6px; margin:4px 0; width:100%; box-sizing:border-box; border-radius:4px; border:1px solid #ccc; }
-    .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.5); transition:0.3s;}
-    .modal-content { background:#fff; margin:5% auto; padding:20px; border-radius:10px; width:90%; max-width:600px; box-shadow:0 0 15px rgba(0,0,0,0.3); animation:fadeIn 0.3s;}
-    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-    .close { color:#aaa; float:right; font-size:28px; font-weight:bold; }
-    .close:hover { color:#000; cursor:pointer; }
-    .cards { display:flex; flex-wrap:wrap; gap:15px; margin-bottom:20px; }
-    .card { flex:1 1 200px; background:#fff; padding:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1); text-align:center; }
-    .card i { font-size:30px; margin-bottom:10px; color:#4CAF50; }
-    @media(max-width:768px){ table, th, td { font-size:12px; } .cards { flex-direction:column; } }
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sistema de Catequese — Completo</title>
+
+  <!-- Bootstrap (modal, grid, utilidades) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --primary:#2f9e44;
+      --primary-dark:#1f6f2b;
+      --muted:#6c757d;
+      --bg:#f5f7fb;
+      --card:#ffffff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:var(--bg);color:#222}
+    /* Sidebar */
+    .sidebar{
+      width:240px;position:fixed;left:0;top:0;bottom:0;background:var(--primary);color:#fff;padding:18px;transition:transform .25s;
+    }
+    .sidebar .title{font-weight:700;font-size:20px;margin-bottom:14px}
+    .nav-link{color:#fff;display:block;padding:10px;border-radius:8px;text-decoration:none;margin-bottom:6px}
+    .nav-link:hover,.nav-link.active{background:var(--primary-dark)}
+    /* Content */
+    .wrap{margin-left:260px;padding:20px;transition:margin .25s}
+    .card-box{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06);margin-bottom:16px}
+    .small-muted{color:var(--muted);font-size:13px}
+    .table-card{background:var(--card);padding:12px;border-radius:8px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+    .search-input{max-width:360px}
+    .hamburger{display:none;cursor:pointer;margin-right:8px;font-size:20px}
+    /* Responsive adjustments */
+    @media(max-width:900px){
+      .sidebar{transform:translateX(-280px);z-index:1200}
+      .sidebar.open{transform:translateX(0)}
+      .wrap{margin-left:0;padding:14px}
+      .hamburger{display:inline-block}
+      .desktop-table{display:none}
+      .mobile-cards{display:block}
+    }
+    @media(min-width:901px){
+      .mobile-cards{display:none}
+    }
+    /* small helpers */
+    .muted{color:var(--muted)}
+    .btn-sm-ghost{border:1px solid #ddd;background:#fff;color:#333}
+  </style>
 </head>
 <body>
-
-<header>
-    <h1>Sistema de Catequese</h1>
-</header>
-
-<div class="container">
-    <h2>Dashboard</h2>
-    <div class="cards">
-        <div class="card">
-            <i class="fas fa-users"></i>
-            <h3 id="totalTurmas">0</h3>
-            <p>Turmas</p>
-        </div>
-        <div class="card">
-            <i class="fas fa-user"></i>
-            <h3 id="totalCatequizandos">0</h3>
-            <p>Catequizandos</p>
-        </div>
-        <div class="card">
-            <i class="fas fa-scroll"></i>
-            <h3 id="totalRitos">0</h3>
-            <p>Ritos Aplicados</p>
-        </div>
-    </div>
-    <canvas id="graficoPresenca" height="100"></canvas>
-
-    <hr>
-
-    <h2>Cadastro de Turmas</h2>
-    <input type="text" id="nomeTurma" placeholder="Nome da Turma">
-    <button onclick="cadastrarTurma()">Cadastrar Turma</button>
-    <table id="tabelaTurmas">
-        <thead><tr><th>Turma</th><th>Ações</th></tr></thead>
-        <tbody></tbody>
-    </table>
-
-    <hr>
-
-    <h2>Cadastro de Ritos</h2>
-    <input type="text" id="nomeRito" placeholder="Nome do Rito">
-    <select id="ritoTurma"><option value="">Selecione a Turma</option></select>
-    <button onclick="cadastrarRito()">Cadastrar Rito</button>
-    <table id="tabelaRitos">
-        <thead><tr><th>Rito</th><th>Turma</th><th>Ações</th></tr></thead>
-        <tbody></tbody>
-    </table>
-
-    <hr>
-
-    <h2>Cadastro de Catequizandos</h2>
-    <input type="text" id="nomeCatequizando" placeholder="Nome do Catequizando">
-    <input type="text" id="responsavel" placeholder="Responsável">
-    <input type="text" id="contatoResponsavel" placeholder="Contato do Responsável">
-    <input type="date" id="dataNascimento" placeholder="Data de Nascimento">
-    <select id="turmaCatequizando"><option value="">Selecione a Turma</option></select>
-    <textarea id="observacao" placeholder="Observação"></textarea>
-    <button onclick="cadastrarCatequizando()">Cadastrar Catequizando</button>
-    <table id="tabelaCatequizandos">
-        <thead><tr><th>Nome</th><th>Idade</th><th>Turma</th><th>Responsável</th><th>Contato</th><th>Observação</th><th>Ações</th></tr></thead>
-        <tbody></tbody>
-    </table>
-
-    <hr>
-
-    <h2>Registro de Presença</h2>
-    <select id="turmaPresenca"><option value="">Selecione a Turma</option></select>
-    <table id="tabelaPresenca">
-        <thead><tr><th>Catequizando</th><th>Presente</th></tr></thead>
-        <tbody></tbody>
-    </table>
-    <button onclick="salvarPresenca()">Salvar Presença</button>
-
-    <hr>
-
-    <h2>Relatórios</h2>
-    <select id="relatorioTurma"><option value="">Selecione a Turma</option></select>
-    <button onclick="gerarRelatorio()">Visualizar Relatório</button>
-    <button onclick="exportarPDF()">Exportar PDF</button>
-    <button onclick="exportarExcel()">Exportar Excel</button>
-    <div id="relatorioContainer"></div>
-</div>
-
-<!-- Modal -->
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="fecharModal()">&times;</span>
-    <h2>Editar Catequizando</h2>
-    <input type="hidden" id="idEditar">
-    <input type="text" id="nomeEditar">
-    <input type="text" id="responsavelEditar">
-    <input type="text" id="contatoEditar">
-    <input type="date" id="dataEditar">
-    <select id="turmaEditar"><option value="">Selecione a Turma</option></select>
-    <textarea id="observacaoEditar"></textarea>
-    <button onclick="salvarEdicao()">Salvar Alterações</button>
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="title">✝️ Catequese</div>
+    <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
+    <a href="#" class="nav-link" data-page="turmas">Turmas</a>
+    <a href="#" class="nav-link" data-page="catequizandos">Catequizandos</a>
+    <a href="#" class="nav-link" data-page="presencas">Presenças</a>
+    <a href="#" class="nav-link" data-page="ritos">Ritos</a>
+    <div style="height:18px"></div>
+    <div class="small-muted">Conectado: SheetDB</div>
   </div>
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- MAIN WRAP -->
+  <div class="wrap">
+    <div class="d-flex align-items-center mb-3">
+      <span class="hamburger me-2" id="hambBtn">☰</span>
+      <h4 id="pageTitle" style="margin:0">Dashboard</h4>
+      <div class="ms-auto muted" id="apiInfo">API: sheetdb.io</div>
+    </div>
+
+    <!-- PAGES -->
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page">
+      <div class="row g-3 mb-3">
+        <div class="col-6 col-md-3">
+          <div class="card-box text-center">
+            <div class="small-muted">Turmas</div>
+            <h4 id="dashTurmas">0</h4>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card-box text-center">
+            <div class="small-muted">Catequizandos</div>
+            <h4 id="dashCatequs">0</h4>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card-box text-center">
+            <div class="small-muted">Presenças</div>
+            <h4 id="dashPres">0</h4>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card-box text-center">
+            <div class="small-muted">Ritos</div>
+            <h4 id="dashRitos">0</h4>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <div class="card-box">
+            <h5>Presenças por Turma</h5>
+            <canvas id="chartPresencas" style="max-height:300px"></canvas>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="card-box">
+            <h5>Ritos por Tipo</h5>
+            <canvas id="chartRitos" style="max-height:300px"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TURMAS -->
+    <div id="page-turmas" class="page" style="display:none">
+      <div class="d-flex align-items-center mb-2">
+        <h5 class="me-auto">Turmas</h5>
+        <input id="searchTurmas" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar turma" />
+      </div>
+
+      <div class="card-box mb-3">
+        <form id="formTurma">
+          <div class="row g-2">
+            <div class="col-md-5"><input id="turma_nome" class="form-control" placeholder="Nome da turma" required></div>
+            <div class="col-md-4"><input id="turma_catequista" class="form-control" placeholder="Catequista"></div>
+            <div class="col-md-3 d-flex gap-2">
+              <input id="turma_horario" class="form-control" placeholder="Horário">
+              <button class="btn btn-success" type="submit">Salvar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div id="turmasList" class="card-box">
+        <div class="table-responsive desktop-table"><table id="turmasTable" class="table table-sm mb-0"></table></div>
+        <div id="turmasMobile" class="mobile-cards"></div>
+      </div>
+    </div>
+
+    <!-- CATEQUIZANDOS -->
+    <div id="page-catequizandos" class="page" style="display:none">
+      <div class="d-flex align-items-center mb-2">
+        <h5 class="me-auto">Catequizandos</h5>
+        <input id="searchCate" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar nome ou turma" />
+      </div>
+
+      <div class="card-box mb-3">
+        <form id="formCate">
+          <div class="row g-2">
+            <div class="col-md-5"><input id="cat_nome" class="form-control" placeholder="Nome do catequizando" required></div>
+            <div class="col-md-2"><input id="cat_data_nasc" type="date" class="form-control" onchange="calcularIdade()" required></div>
+            <div class="col-md-1"><input id="cat_idade" class="form-control" placeholder="Idade" readonly></div>
+            <div class="col-md-4"><select id="cat_turma" class="form-select"></select></div>
+
+            <div class="col-md-5"><input id="cat_responsavel" class="form-control" placeholder="Nome do responsável"></div>
+            <div class="col-md-4"><input id="cat_contato_responsavel" class="form-control" placeholder="Contato do responsável"></div>
+            <div class="col-md-3"><input id="cat_telefone_opcional" class="form-control" placeholder="Tel. opcional"></div>
+
+            <div class="col-12"><textarea id="cat_observacao" class="form-control" rows="2" placeholder="Observações"></textarea></div>
+            <input type="hidden" id="cat_row">
+            <div class="col-12 text-end"><button class="btn btn-success mt-2" type="submit">Salvar</button></div>
+          </div>
+        </form>
+      </div>
+
+      <div class="card-box">
+        <div class="table-responsive desktop-table"><table id="cateTable" class="table table-sm mb-0"></table></div>
+        <div id="cateMobile" class="mobile-cards"></div>
+      </div>
+    </div>
+
+    <!-- PRESENCAS -->
+    <div id="page-presencas" class="page" style="display:none">
+      <div class="d-flex align-items-center mb-2">
+        <h5 class="me-auto">Presenças</h5>
+        <input id="searchPres" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar por turma / data" />
+      </div>
+
+      <div class="card-box mb-3">
+        <form id="formPres">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-4"><select id="pres_turma" class="form-select" required></select></div>
+            <div class="col-md-4"><select id="pres_catequizando" class="form-select" required></select></div>
+            <div class="col-md-2"><input id="pres_data" type="date" class="form-control" required></div>
+            <div class="col-md-2 d-flex gap-2"><select id="pres_status" class="form-select"><option>Presente</option><option>Faltou</option></select><button class="btn btn-success" type="submit">Salvar</button></div>
+          </div>
+        </form>
+      </div>
+
+      <div class="card-box">
+        <div class="table-responsive desktop-table"><table id="presTable" class="table table-sm mb-0"></table></div>
+        <div id="presMobile" class="mobile-cards"></div>
+      </div>
+    </div>
+
+    <!-- RITOS -->
+    <div id="page-ritos" class="page" style="display:none">
+      <div class="d-flex align-items-center mb-2">
+        <h5 class="me-auto">Ritos</h5>
+        <input id="searchRitos" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar rito / catequizando" />
+      </div>
+
+      <div class="card-box mb-3">
+        <form id="formRito">
+          <div class="row g-2">
+            <div class="col-md-4"><select id="rito_turma" class="form-select" onchange="loadCatequizandoSelectForRito()"></select></div>
+            <div class="col-md-5"><select id="rito_catequizando" class="form-select"></select></div>
+            <div class="col-md-2"><input id="rito_tipo" class="form-control" placeholder="Tipo de rito"></div>
+            <div class="col-md-1"><input id="rito_data" type="date" class="form-control"></div>
+          </div>
+          <input type="hidden" id="rito_row">
+          <div class="text-end mt-2"><button class="btn btn-success" type="submit">Salvar</button></div>
+        </form>
+      </div>
+
+      <div class="card-box">
+        <div class="table-responsive desktop-table"><table id="ritoTable" class="table table-sm mb-0"></table></div>
+        <div id="ritoMobile" class="mobile-cards"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT MODAL (reused for multiple types) -->
+  <div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Editar</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          <button id="modalSaveBtn" type="button" class="btn btn-primary">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap bundle (modal) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-const API = "https://sheetdb.io/api/v1/a7deww2pd3giv";
-let turmas=[], ritos=[], catequizandos=[], grafico=null;
+/* ---------- CONFIG ---------- */
+const API_URL = "https://sheetdb.io/api/v1/a7deww2pd3giv";
+const state = { turmas:[], cate:[], pres:[], ritos:[] };
+const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+let chartPres = null, chartRitos = null;
 
-function calcularIdade(dataNasc){
-    const hoje = new Date();
-    const nasc = new Date(dataNasc);
-    let idade = hoje.getFullYear() - nasc.getFullYear();
-    const m = hoje.getMonth() - nasc.getMonth();
-    if(m<0 || (m===0 && hoje.getDate()<nasc.getDate())) idade--;
-    return idade;
+/* ---------- UI utils ---------- */
+function q(sel, ctx=document) { return ctx.querySelector(sel); }
+function qa(sel, ctx=document) { return Array.from(ctx.querySelectorAll(sel)); }
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+function setActiveNav(page){ qa('.nav-link').forEach(a=>a.classList.remove('active')); qa(`.nav-link[data-page="${page}"]`).forEach(a=>a.classList.add('active')); }
+
+/* Sidebar & page switching */
+qa('.nav-link').forEach(a=>{
+  a.addEventListener('click', e=>{
+    e.preventDefault();
+    const page = a.dataset.page;
+    openPage(page);
+    if(window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
+  });
+});
+document.getElementById('hambBtn').addEventListener('click', toggleSidebar);
+function openPage(page){
+  setActiveNav(page);
+  q('#pageTitle').innerText = page.charAt(0).toUpperCase() + page.slice(1);
+  qa('.page').forEach(p=>p.style.display='none');
+  q(`#page-${page}`).style.display='block';
+  // render current
+  if(page==='turmas') renderTurmas();
+  if(page==='catequizandos') renderCatequizandos();
+  if(page==='presencas') renderPresencas();
+  if(page==='ritos') renderRitos();
 }
 
-function atualizarDashboard(){
-    document.getElementById("totalTurmas").innerText = turmas.length;
-    document.getElementById("totalCatequizandos").innerText = catequizandos.length;
-    document.getElementById("totalRitos").innerText = ritos.length;
-    atualizarGrafico();
+/* ---------- API helpers ---------- */
+async function apiGet(sheet){
+  const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`);
+  if(!res.ok) return [];
+  return res.json();
+}
+async function apiPost(sheet, payload){
+  return fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`,{
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data: payload})
+  });
+}
+async function apiPut(row, sheet, payload){
+  return fetch(`${API_URL}/${row}?sheet=${encodeURIComponent(sheet)}`, {
+    method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data: payload})
+  });
+}
+async function apiDelete(row, sheet){
+  return fetch(`${API_URL}/${row}?sheet=${encodeURIComponent(sheet)}`, { method:'DELETE' });
 }
 
-async function carregarDados(){
-    const res = await fetch(API);
-    const data = await res.json();
-    turmas = data.filter(d=>d.sheet==="Turmas");
-    ritos = data.filter(d=>d.sheet==="Ritos");
-    catequizandos = data.filter(d=>d.sheet==="Catequizandos");
-    atualizarDashboard();
-    preencherTabelas();
-}
-carregarDados();
-
-function preencherTabelas(){
-    const tabelaTurmas = document.querySelector("#tabelaTurmas tbody");
-    const tabelaRitos = document.querySelector("#tabelaRitos tbody");
-    const tabelaCate = document.querySelector("#tabelaCatequizandos tbody");
-    tabelaTurmas.innerHTML=""; tabelaRitos.innerHTML=""; tabelaCate.innerHTML="";
-
-    turmas.forEach(t=>tabelaTurmas.innerHTML += `<tr><td>${t.nome}</td><td><button onclick="excluirTurma('${t.id}')">Excluir</button></td></tr>`);
-    ritos.forEach(r=>tabelaRitos.innerHTML += `<tr><td>${r.nome}</td><td>${r.turma}</td><td><button onclick="excluirRito('${r.id}')">Excluir</button></td></tr>`);
-    catequizandos.forEach(c=>{
-        tabelaCate.innerHTML += `<tr>
-            <td>${c.nome}</td>
-            <td>${calcularIdade(c.data)}</td>
-            <td>${c.turma}</td>
-            <td>${c.responsavel}</td>
-            <td>${c.contato}</td>
-            <td>${c.observacao}</td>
-            <td><button onclick="abrirModal('${c.id}')">Editar</button></td>
-        </tr>`;
-    });
-
-    const turmaSelects = ["turmaCatequizando","turmaEditar","ritoTurma","turmaPresenca","relatorioTurma"];
-    turmaSelects.forEach(id=>{
-        const sel = document.getElementById(id);
-        sel.innerHTML='<option value="">Selecione a Turma</option>';
-        turmas.forEach(t=>sel.innerHTML+=`<option value="${t.nome}">${t.nome}</option>`);
-    });
-    atualizarTabelaPresenca();
+/* ---------- Load all data ---------- */
+async function loadAll(){
+  // fetch sheets in parallel
+  const [turmas, cate, pres, ritos] = await Promise.all([
+    apiGet('Turmas'), apiGet('Catequizandos'), apiGet('Presencas'), apiGet('Ritos')
+  ]);
+  state.turmas = turmas || [];
+  state.cate = cate || [];
+  state.pres = pres || [];
+  state.ritos = ritos || [];
+  renderDashboard(); fillSelects(); renderTurmas(); renderCatequizandos(); renderPresencas(); renderRitos();
 }
 
-function atualizarTabelaPresenca(){
-    const turma = document.getElementById("turmaPresenca").value;
-    const tabela = document.querySelector("#tabelaPresenca tbody");
-    tabela.innerHTML="";
-    catequizandos.filter(c=>c.turma===turma).forEach(c=>{
-        tabela.innerHTML += `<tr><td>${c.nome}</td><td><input type="checkbox" data-id="${c.id}" ${c.presente==="Sim"?"checked":""}></td></tr>`;
-    });
+/* ---------- Dashboard & charts ---------- */
+function renderDashboard(){
+  q('#dashTurmas').innerText = state.turmas.length;
+  q('#dashCatequs').innerText = state.cate.length;
+  q('#dashPres').innerText = state.pres.length;
+  q('#dashRitos').innerText = state.ritos.length;
+  renderChartPresencas();
+  renderChartRitos();
 }
-document.getElementById("turmaPresenca").addEventListener("change", atualizarTabelaPresenca);
-
-async function cadastrarTurma(){
-    const nome = document.getElementById("nomeTurma").value;
-    if(!nome) return alert("Informe o nome da turma");
-    await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{sheet:"Turmas",nome}})});
-    document.getElementById("nomeTurma").value="";
-    carregarDados();
+function renderChartPresencas(){
+  // count presences per turma (status=Presente)
+  const presentCounts = {};
+  state.pres.forEach(p=>{
+    if((p.status||'').toLowerCase().includes('pres')) presentCounts[p.turma] = (presentCounts[p.turma]||0) + 1;
+  });
+  const labels = Object.keys(presentCounts);
+  const data = labels.map(l=>presentCounts[l]);
+  const ctx = q('#chartPresencas').getContext('2d');
+  if(chartPres) chartPres.destroy();
+  chartPres = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{label:'Presenças (Presentes)', data, backgroundColor: 'rgba(47,158,68,0.8)'}] },
+    options:{ responsive:true, plugins:{legend:{display:false}} }
+  });
 }
-
-async function cadastrarRito(){
-    const nome = document.getElementById("nomeRito").value;
-    const turma = document.getElementById("ritoTurma").value;
-    if(!nome || !turma) return alert("Preencha todos os campos");
-    await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{sheet:"Ritos",nome,turma}})});
-    document.getElementById("nomeRito").value="";
-    carregarDados();
-}
-
-async function cadastrarCatequizando(){
-    const nome = document.getElementById("nomeCatequizando").value;
-    const responsavel = document.getElementById("responsavel").value;
-    const contato = document.getElementById("contatoResponsavel").value;
-    const data = document.getElementById("dataNascimento").value;
-    const turma = document.getElementById("turmaCatequizando").value;
-    const observacao = document.getElementById("observacao").value;
-    if(!nome || !turma) return alert("Preencha os campos obrigatórios");
-    await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{sheet:"Catequizandos",nome,responsavel,contato,data,turma,observacao}})});
-    document.getElementById("nomeCatequizando").value="";
-    document.getElementById("responsavel").value="";
-    document.getElementById("contatoResponsavel").value="";
-    document.getElementById("dataNascimento").value="";
-    document.getElementById("turmaCatequizando").value="";
-    document.getElementById("observacao").value="";
-    carregarDados();
+function renderChartRitos(){
+  const counts = {};
+  state.ritos.forEach(r=>{ counts[r.tipo] = (counts[r.tipo]||0) + 1; });
+  const labels = Object.keys(counts);
+  const data = labels.map(l=>counts[l]);
+  const ctx = q('#chartRitos').getContext('2d');
+  if(chartRitos) chartRitos.destroy();
+  chartRitos = new Chart(ctx, {
+    type:'pie',
+    data:{ labels, datasets:[{data, backgroundColor: labels.map((_,i)=>`hsl(${i*60%360} 70% 50%)`)}] },
+    options:{ responsive:true }
+  });
 }
 
-// Modal e edição
-function abrirModal(id){
-    const c = catequizandos.find(x=>x.id===id);
-    document.getElementById("idEditar").value = c.id;
-    document.getElementById("nomeEditar").value = c.nome;
-    document.getElementById("responsavelEditar").value = c.responsavel;
-    document.getElementById("contatoEditar").value = c.contato;
-    document.getElementById("dataEditar").value = c.data;
-    document.getElementById("turmaEditar").value = c.turma;
-    document.getElementById("observacaoEditar").value = c.observacao;
-    document.getElementById("modal").style.display = "block";
-}
-function fecharModal(){ document.getElementById("modal").style.display="none"; }
-async function salvarEdicao(){
-    const id = document.getElementById("idEditar").value;
-    const nome = document.getElementById("nomeEditar").value;
-    const responsavel = document.getElementById("responsavelEditar").value;
-    const contato = document.getElementById("contatoEditar").value;
-    const data = document.getElementById("dataEditar").value;
-    const turma = document.getElementById("turmaEditar").value;
-    const observacao = document.getElementById("observacaoEditar").value;
-    await fetch(`${API}/id/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{nome,responsavel,contato,data,turma,observacao}})});
-    fecharModal(); carregarDados();
+/* ---------- Fill selects ---------- */
+function fillSelects(){
+  const opts = state.turmas.map(t=>`<option value="${t.nome}">${t.nome}</option>`).join('');
+  qa('#cat_turma, #pres_turma, #rito_turma').forEach(s=>{ if(s) s.innerHTML = opts; });
+  loadCatequizandoSelectForPresence();
+  loadCatequizandoSelectForRito();
 }
 
-// Excluir
-async function excluirTurma(id){ await fetch(`${API}/id/${id}`,{method:"DELETE"}); carregarDados(); }
-async function excluirRito(id){ await fetch(`${API}/id/${id}`,{method:"DELETE"}); carregarDados(); }
-
-// Presença
-async function salvarPresenca(){
-    const checkboxes = document.querySelectorAll("#tabelaPresenca input[type=checkbox]");
-    checkboxes.forEach(async cb=>{
-        const id = cb.dataset.id;
-        await fetch(`${API}/id/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{presente:cb.checked?"Sim":"Não"}})});
-    });
-    alert("Presenças salvas!");
-    carregarDados();
+/* ---------- Turmas CRUD + render ---------- */
+q('#formTurma')?.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const nome = q('#turma_nome').value.trim();
+  const catequista = q('#turma_catequista').value.trim();
+  const horario = q('#turma_horario').value.trim();
+  if(!nome) return alert('Nome da turma obrigatório');
+  await apiPost('Turmas', { nome, catequista, horario });
+  q('#turma_nome').value=''; q('#turma_catequista').value=''; q('#turma_horario').value='';
+  await loadAll();
+});
+function renderTurmas(){
+  const qv = (q('#searchTurmas')?.value||'').toLowerCase();
+  const rows = state.turmas.filter(t=>(t.nome||'').toLowerCase().includes(qv) || (t.catequista||'').toLowerCase().includes(qv));
+  // desktop table
+  let html = `<thead><tr><th>Nome</th><th>Catequista</th><th>Horário</th><th>Ações</th></tr></thead><tbody>`;
+  rows.forEach(t=>{
+    html += `<tr>
+      <td>${t.nome||''}</td>
+      <td>${t.catequista||''}</td>
+      <td>${t.horario||''}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" data-row="${t.row}" data-type="turma-edit">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-row="${t.row}" data-type="turma-del">Excluir</button>
+      </td>
+    </tr>`;
+  });
+  html += `</tbody>`;
+  q('#turmasTable').innerHTML = html;
+  // mobile cards
+  q('#turmasMobile').innerHTML = rows.map(t=>`
+    <div class="table-card">
+      <div><strong>${t.nome||''}</strong></div>
+      <div class="small-muted">${t.catequista||''} • ${t.horario||''}</div>
+      <div class="mt-2">
+        <button class="btn btn-sm btn-outline-primary" data-row="${t.row}" data-type="turma-edit">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-row="${t.row}" data-type="turma-del">Excluir</button>
+      </div>
+    </div>
+  `).join('');
 }
 
-// Relatórios
-function gerarRelatorio(){
-    const turma = document.getElementById("relatorioTurma").value;
-    const lista = catequizandos.filter(c=>c.turma===turma);
-    let html = `<h3>Relatório da Turma: ${turma}</h3><table border="1"><tr><th>Nome</th><th>Idade</th><th>Ritos</th><th>Presença</th></tr>`;
-    lista.forEach(c=>{
-        const ritosCate = ritos.filter(r=>r.turma===turma).map(r=>r.nome).join(", ");
-        html += `<tr>
-            <td>${c.nome}</td>
-            <td>${calcularIdade(c.data)}</td>
-            <td>${ritosCate}</td>
-            <td>${c.presente || ""}</td>
-        </tr>`;
-    });
-    html += "</table>";
-    document.getElementById("relatorioContainer").innerHTML = html;
+/* ---------- Catequizandos CRUD + render ---------- */
+q('#formCate')?.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  await saveCatequizando();
+});
+async function saveCatequizando(){
+  const nome = q('#cat_nome').value.trim();
+  const data_nasc = q('#cat_data_nasc').value;
+  const idade = q('#cat_idade').value;
+  const turma = q('#cat_turma').value;
+  const responsavel = q('#cat_responsavel').value.trim();
+  const contato_responsavel = q('#cat_contato_responsavel').value.trim();
+  const observacao = q('#cat_observacao').value.trim();
+  const row = q('#cat_row').value;
+  if(!nome) return alert('Nome é obrigatório');
+  const payload = { nome, data_nasc, idade, turma, responsavel, contato_responsavel, observacao };
+  if(row){
+    await apiPut(row, 'Catequizandos', payload);
+  } else {
+    await apiPost('Catequizandos', payload);
+  }
+  // clear
+  ['#cat_nome','#cat_data_nasc','#cat_idade','#cat_turma','#cat_responsavel','#cat_contato_responsavel','#cat_observacao','#cat_row'].forEach(id=>{ if(q(id)) q(id).value=''; });
+  await loadAll();
+}
+function renderCatequizandos(){
+  const qv = (q('#searchCate')?.value||'').toLowerCase();
+  const rows = state.cate.filter(c=> (c.nome||'').toLowerCase().includes(qv) || (c.turma||'').toLowerCase().includes(qv) );
+  let html = `<thead><tr><th>Nome</th><th>Turma</th><th>Idade</th><th>Responsável</th><th>Ações</th></tr></thead><tbody>`;
+  rows.forEach(c=>{
+    html += `<tr>
+      <td>${c.nome||''}</td>
+      <td>${c.turma||''}</td>
+      <td>${c.idade||''}</td>
+      <td>${c.responsavel||''}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" data-row="${c.row}" data-type="cate-edit">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-row="${c.row}" data-type="cate-del">Excluir</button>
+      </td>
+    </tr>`;
+  });
+  html += `</tbody>`;
+  q('#cateTable').innerHTML = html;
+  // mobile cards
+  q('#cateMobile').innerHTML = rows.map(c=>`
+    <div class="table-card">
+      <div><strong>${c.nome||''}</strong> <span class="small-muted">(${c.turma||''})</span></div>
+      <div>${c.idade||''} anos • ${c.responsavel||''}</div>
+      <div class="mt-2">
+        <button class="btn btn-sm btn-outline-primary" data-row="${c.row}" data-type="cate-edit">Editar</button>
+        <button class="btn btn-sm btn-outline-danger" data-row="${c.row}" data-type="cate-del">Excluir</button>
+      </div>
+    </div>`).join('');
 }
 
-// Exportar PDF/Excel
-function exportarPDF(){
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.html(document.getElementById("relatorioContainer"), {callback:function(pdf){ pdf.save("relatorio.pdf"); }});
-}
-function exportarExcel(){
-    const table = document.querySelector("#relatorioContainer table");
-    const wb = XLSX.utils.table_to_book(table,{sheet:"Relatório"});
-    XLSX.writeFile(wb,"relatorio.xlsx");
-}
-
-// Gráfico
-function atualizarGrafico(){
-    const labels = turmas.map(t=>t.nome);
-    const dataPresenca = turmas.map(t=>{
-        const lista = catequizandos.filter(c=>c.turma===t.nome);
-        const presentes = lista.filter(c=>c.presente==="Sim").length;
-        return presentes;
-    });
-    if(grafico) grafico.destroy();
-    const ctx = document.getElementById("graficoPresenca").getContext("2d");
-    grafico = new Chart(ctx, { type:'bar', data:{labels, datasets:[{label:'Presenças', data:dataPresenca, backgroundColor:'#4CAF50'}]}, options:{responsive:true, plugins:{legend:{display:false}}} });
-}
-</script>
-
-</body>
-</html>
+/* ---------- Presenças CRUD + render ---------- */
+q('#formPres')?.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  await savePresenca();
+});
+async function loadCatequizandoSelectForPresence(){
+  const turma = q('#pres_turma')?.value;
+  if(!turma) return;
+  const opts = state.cate.filter(c=>c.turma===turma).map(c=>`<option value="${c.nome}">${c.n
