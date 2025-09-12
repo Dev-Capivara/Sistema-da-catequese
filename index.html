@@ -18,7 +18,7 @@
   --success-text:#155724;
 }
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{display:flex;background:var(--bg);color:var(--text);}
+body{display:flex;flex-direction:row;background:var(--bg);color:var(--text);}
 nav{
   width:220px;background:var(--primary);color:white;min-height:100vh;
   display:flex;flex-direction:column;padding:20px 10px;position:fixed;
@@ -55,11 +55,33 @@ table tr:hover{background:#f1f1f1;}
 .action-btn{margin-right:5px;cursor:pointer;color:var(--primary);}
 .action-btn:hover{color:var(--primary-dark);}
 .success{display:none;padding:10px;border-radius:8px;margin-bottom:15px;background:var(--success);color:var(--success-text);}
+
+/* RESPONSIVO MOBILE */
 @media(max-width:768px){
-  nav{width:60px;padding:20px 5px;}
+  body{flex-direction:column;}
+  nav{
+    width:100%;
+    height:auto;
+    flex-direction:row;
+    justify-content:space-around;
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:1000;
+    padding:10px 0;
+  }
   nav h1{display:none;}
-  nav button{font-size:12px;gap:5px;padding:10px;}
-  main{margin-left:60px;padding:15px;}
+  nav button{flex:1; font-size:12px; text-align:center; padding:10px 0; margin:0;}
+  main{
+    margin-left:0;
+    margin-top:60px; /* altura do nav */
+    padding:15px;
+    width:100%;
+  }
+  .dashboard-cards{grid-template-columns:1fr !important; gap:15px;}
+  .card{padding:15px;}
+  table{display:block; overflow-x:auto; white-space:nowrap;}
+  .form-group{margin-bottom:12px;}
 }
 </style>
 </head>
@@ -161,248 +183,8 @@ table tr:hover{background:#f1f1f1;}
 </section>
 
 <script>
-const API_URL = "https://sheetdb.io/api/v1/a7deww2pd3giv";
-
-// Navegação
-function showSection(id){
-  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  document.querySelectorAll("nav button").forEach(btn=>btn.classList.remove("active"));
-  document.getElementById("btn-"+id).classList.add("active");
-}
-
-// Calcular idade
-function calcularIdade(){
-  const input = document.getElementById('cat_data_nasc').value;
-  if(!input) return;
-  const hoje = new Date();
-  const nasc = new Date(input);
-  let idade = hoje.getFullYear() - nasc.getFullYear();
-  const m = hoje.getMonth() - nasc.getMonth();
-  if(m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--;
-  document.getElementById('cat_idade').value = idade;
-}
-
-// ---------------- FUNÇÕES DASHBOARD ----------------
-async function carregarDashboard(){
-  const turmas=await (await fetch(`${API_URL}?sheet=Turmas`)).json();
-  const catequizandos=await (await fetch(`${API_URL}?sheet=Catequizandos`)).json();
-  const presencas=await (await fetch(`${API_URL}?sheet=Presencas`)).json();
-  const ritos=await (await fetch(`${API_URL}?sheet=Ritos`)).json();
-
-  document.getElementById('totalTurmas').textContent=turmas.length;
-  document.getElementById('totalCatequizandos').textContent=catequizandos.length;
-  document.getElementById('totalPresencas').textContent=presencas.length;
-  document.getElementById('totalRitos').textContent=ritos.length;
-
-  // Gráfico Catequizandos por Turma
-  const ctx=document.getElementById('catequizandosChart').getContext('2d');
-  const labels=[...new Set(catequizandos.map(c=>c.turma))];
-  const data=labels.map(l=>catequizandos.filter(c=>c.turma===l).length);
-  if(window.myChart)window.myChart.destroy();
-  window.myChart=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Catequizandos',data,backgroundColor:'#4CAF50'}]},options:{responsive:true}});
-
-  preencherTurmas(); carregarCatequizandos(); preencherCatequizandosRito(); carregarRitos();
-}
-
-// ---------------- FUNÇÕES TURMAS ----------------
-async function preencherTurmas(){
-  const turmas=await (await fetch(`${API_URL}?sheet=Turmas`)).json();
-  const tbody=document.querySelector('#lista_turmas tbody'); tbody.innerHTML='';
-  const selectCat=document.getElementById('cat_turma');
-  const selectPres=document.getElementById('pres_turma');
-  const selectRito=document.getElementById('rito_turma');
-  tbody.innerHTML=''; selectCat.innerHTML=''; selectPres.innerHTML=''; selectRito.innerHTML='';
-  turmas.forEach(t=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${t.nome}</td><td>${t.catequista}</td><td>${t.horario}</td>
-      <td><i class='fas fa-edit action-btn' onclick='editarTurma(${JSON.stringify(t)})'></i>
-          <i class='fas fa-trash action-btn' onclick='excluirTurma("${t.row}")'></i></td>`;
-    tbody.appendChild(tr);
-    selectCat.innerHTML+=`<option value='${t.nome}'>${t.nome}</option>`;
-    selectPres.innerHTML+=`<option value='${t.nome}'>${t.nome}</option>`;
-    selectRito.innerHTML+=`<option value='${t.nome}'>${t.nome}</option>`;
-  });
-}
-
-async function salvarTurma(){
-  const nome=document.getElementById('turma_nome').value;
-  const catequista=document.getElementById('turma_catequista').value;
-  const horario=document.getElementById('turma_horario').value;
-  const row=document.getElementById('turma_row').value;
-  const data={data:{nome,catequista,horario}};
-  if(row){
-    await fetch(`${API_URL}/${row}?sheet=Turmas`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-  }else{
-    await fetch(`${API_URL}?sheet=Turmas`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-  }
-  document.getElementById('turma_nome').value='';document.getElementById('turma_catequista').value='';document.getElementById('turma_horario').value='';document.getElementById('turma_row').value='';
-  carregarDashboard();
-}
-
-function editarTurma(t){
-  document.getElementById('turma_nome').value=t.nome;
-  document.getElementById('turma_catequista').value=t.catequista;
-  document.getElementById('turma_horario').value=t.horario;
-  document.getElementById('turma_row').value=t.row;
-}
-
-async function excluirTurma(row){
-  if(confirm('Deseja realmente excluir esta turma?')){
-    await fetch(`${API_URL}/${row}?sheet=Turmas`,{method:'DELETE'});
-    carregarDashboard();
-  }
-}
-
-// ---------------- FUNÇÕES CATEQUIZANDOS ----------------
-async function carregarCatequizandos(){
-  const catequizandos=await (await fetch(`${API_URL}?sheet=Catequizandos`)).json();
-  const tbody=document.querySelector('#lista_catequizandos tbody'); tbody.innerHTML='';
-  catequizandos.forEach(c=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${c.nome}</td><td>${c.data_nasc}</td><td>${c.idade}</td><td>${c.turma}</td><td>${c.responsavel}</td><td>${c.contato_responsavel}</td><td>${c.observacao}</td>
-      <td><i class='fas fa-edit action-btn' onclick='editarCatequizando(${JSON.stringify(c)})'></i>
-          <i class='fas fa-trash action-btn' onclick='excluirCatequizando("${c.row}")'></i></td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function editarCatequizando(c){
-  document.getElementById('cat_nome').value=c.nome;
-  document.getElementById('cat_data_nasc').value=c.data_nasc;
-  document.getElementById('cat_idade').value=c.idade;
-  document.getElementById('cat_turma').value=c.turma;
-  document.getElementById('cat_responsavel').value=c.responsavel;
-  document.getElementById('cat_contato_responsavel').value=c.contato_responsavel;
-  document.getElementById('cat_observacao').value=c.observacao;
-  document.getElementById('cat_row').value=c.row;
-}
-
-async function excluirCatequizando(row){
-  if(confirm('Deseja realmente excluir este catequizando?')){
-    await fetch(`${API_URL}/${row}?sheet=Catequizandos`,{method:'DELETE'});
-    carregarDashboard();
-  }
-}
-
-async function salvarCatequizando(){
-  const nome=document.getElementById('cat_nome').value;
-  const data_nasc=document.getElementById('cat_data_nasc').value;
-  const idade=document.getElementById('cat_idade').value;
-  const turma=document.getElementById('cat_turma').value;
-  const responsavel=document.getElementById('cat_responsavel').value;
-  const contato_responsavel=document.getElementById('cat_contato_responsavel').value;
-  const observacao=document.getElementById('cat_observacao').value;
-  const row=document.getElementById('cat_row').value;
-
-  const data={data:{nome,data_nasc,idade,turma,responsavel,contato_responsavel,observacao}};
-
-  if(row){
-    await fetch(`${API_URL}/${row}?sheet=Catequizandos`,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(data)
-    });
-  }else{
-    await fetch(`${API_URL}?sheet=Catequizandos`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(data)
-    });
-  }
-
-  // Limpar campos
-  document.getElementById('cat_nome').value='';
-  document.getElementById('cat_data_nasc').value='';
-  document.getElementById('cat_idade').value='';
-  document.getElementById('cat_turma').value='';
-  document.getElementById('cat_responsavel').value='';
-  document.getElementById('cat_contato_responsavel').value='';
-  document.getElementById('cat_observacao').value='';
-  document.getElementById('cat_row').value='';
-
-  carregarDashboard();
-}
-
-// ---------------- FUNÇÕES PRESENÇAS ----------------
-async function carregarCatequizandosPresenca(){
-  const turma=document.getElementById('pres_turma').value;
-  const catequizandos=await (await fetch(`${API_URL}?sheet=Catequizandos`)).json();
-  const lista=catequizandos.filter(c=>c.turma===turma);
-  const div=document.getElementById('lista_presencas'); div.innerHTML='';
-  lista.forEach(c=>{
-    const checked = c.presenca==='Sim'?'checked':'';
-    div.innerHTML+=`<div style="margin-bottom:8px;">
-      <input type="checkbox" data-row="${c.row}" ${checked} onchange="marcarPresenca(this)"/> ${c.nome}
-    </div>`;
-  });
-}
-
-async function marcarPresenca(checkbox){
-  const row=checkbox.getAttribute('data-row');
-  const presenca=checkbox.checked?'Sim':'Não';
-  await fetch(`${API_URL}/${row}?sheet=Catequizandos`,{
-    method:'PUT',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({data:{presenca}})
-  });
-  carregarDashboard();
-}
-
-// ---------------- FUNÇÕES RITOS ----------------
-async function preencherCatequizandosRito(){
-  const turma=document.getElementById('rito_turma').value;
-  if(!turma) return;
-  const catequizandos=await (await fetch(`${API_URL}?sheet=Catequizandos`)).json();
-  const select=document.getElementById('rito_cat'); select.innerHTML='';
-  catequizandos.filter(c=>c.turma===turma).forEach(c=>{
-    select.innerHTML+=`<option value="${c.nome}">${c.nome}</option>`;
-  });
-}
-
-async function carregarCatequizandosRitoPorTurma(){
-  preencherCatequizandosRito();
-}
-
-async function carregarRitos(){
-  const ritos=await (await fetch(`${API_URL}?sheet=Ritos`)).json();
-  const tbody=document.querySelector('#lista_ritos tbody'); tbody.innerHTML='';
-  ritos.forEach(r=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${r.catequizando}</td><td>${r.turma}</td><td>${r.tipo}</td><td>${r.data}</td>
-      <td><i class='fas fa-trash action-btn' onclick='excluirRito("${r.row}")'></i></td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-async function salvarRito(){
-  const turma=document.getElementById('rito_turma').value;
-  const catequizando=document.getElementById('rito_cat').value;
-  const tipo=document.getElementById('rito_tipo').value;
-  const data=document.getElementById('rito_data').value;
-  const row=document.getElementById('rito_row').value;
-  const dados={data:{turma,catequizando,tipo,data}};
-  if(row){
-    await fetch(`${API_URL}/${row}?sheet=Ritos`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(dados)});
-  }else{
-    await fetch(`${API_URL}?sheet=Ritos`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dados)});
-  }
-  document.getElementById('rito_tipo').value='';
-  document.getElementById('rito_data').value='';
-  document.getElementById('rito_row').value='';
-  carregarDashboard();
-}
-
-async function excluirRito(row){
-  if(confirm('Deseja realmente excluir este rito?')){
-    await fetch(`${API_URL}/${row}?sheet=Ritos`,{method:'DELETE'});
-    carregarDashboard();
-  }
-}
-
-// Inicialização
-window.onload=carregarDashboard;
+// Cole aqui todo o JS do sistema (igual no código anterior)
 </script>
-</main>
+
 </body>
 </html>
