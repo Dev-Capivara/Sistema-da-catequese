@@ -1,959 +1,408 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Controle de Catequese</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #3c6382;
-            --secondary-color: #60a3bc;
-            --accent-color: #f6b93b;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-        }
-        
-        body {
-            background-color: #f5f6fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .navbar {
-            background-color: var(--primary-color);
-        }
-        
-        .sidebar {
-            background-color: var(--secondary-color);
-            min-height: calc(100vh - 56px);
-            padding-top: 20px;
-        }
-        
-        .sidebar .nav-link {
-            color: white;
-            padding: 15px 20px;
-            margin: 5px 0;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-        
-        .sidebar .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .sidebar .nav-link.active {
-            background-color: white;
-            color: var(--primary-color);
-            font-weight: bold;
-        }
-        
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            border: none;
-        }
-        
-        .card-header {
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 10px 10px 0 0 !important;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-primary:hover {
-            background-color: #2a4e6d;
-            border-color: #2a4e6d;
-        }
-        
-        .btn-success {
-            background-color: #38ada9;
-            border-color: #38ada9;
-        }
-        
-        .btn-warning {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-        
-        .table th {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-        
-        .presenca-badge {
-            font-size: 0.85rem;
-            padding: 5px 10px;
-            border-radius: 20px;
-        }
-        
-        .dashboard-card {
-            transition: transform 0.3s;
-        }
-        
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stats-number {
-            font-size: 2rem;
-            font-weight: bold;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Catequese</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --primary:#4CAF50;
+  --primary-dark:#3d8b41;
+  --bg:#f4f6f9;
+  --card-bg:#fff;
+  --text:#333;
+  --success:#d4edda;
+  --success-text:#155724;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{display:flex;background:var(--bg);color:var(--text);}
+nav{
+  width:220px;background:var(--primary);color:white;min-height:100vh;
+  display:flex;flex-direction:column;padding:20px 10px;position:fixed;
+}
+nav h1{text-align:center;font-size:20px;margin-bottom:30px;font-weight:600;}
+nav button{
+  background:none;border:none;color:white;padding:12px;margin:5px 0;text-align:left;
+  cursor:pointer;border-radius:8px;font-size:15px;display:flex;align-items:center;gap:10px;transition:0.3s;
+}
+nav button:hover, nav button.active{background:var(--primary-dark);}
+main{margin-left:220px;padding:30px;width:100%;overflow-x:auto;}
+section{display:none;animation:fadeIn 0.3s ease;}
+section.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+h2{margin-bottom:20px;font-weight:600;}
+.card{background:var(--card-bg);padding:20px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.05);margin-bottom:25px;transition:0.3s;}
+.card:hover{transform:translateY(-2px);}
+.form-group{margin-bottom:15px;}
+.form-group label{display:block;margin-bottom:6px;font-size:14px;font-weight:600;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;}
+textarea{resize:none;}
+.btn{background:var(--primary);color:white;padding:10px 16px;border:none;border-radius:8px;cursor:pointer;font-size:14px;transition:0.3s;}
+.btn:hover{background:var(--primary-dark);}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+table th,table td{padding:12px;text-align:left;border-bottom:1px solid #eee;font-size:14px;}
+table tr:nth-child(even){background:#fafafa;}
+table tr:hover{background:#f1f1f1;}
+.dashboard-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-bottom:30px;}
+.dashboard-card{text-align:center;background:var(--card-bg);padding:20px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.05);transition:0.3s;}
+.dashboard-card:hover{transform:translateY(-3px);}
+.dashboard-card h3{font-size:20px;margin-bottom:10px;}
+.dashboard-card p{font-size:16px;color:#555;}
+#chartDiv{background:var(--card-bg);padding:20px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.05);margin-bottom:25px;}
+.action-btn{margin-right:5px;cursor:pointer;color:var(--primary);}
+.action-btn:hover{color:var(--primary-dark);}
+.success{display:none;padding:10px;border-radius:8px;margin-bottom:15px;background:var(--success);color:var(--success-text);}
+@media(max-width:768px){
+  nav{width:60px;padding:20px 5px;}
+  nav h1{display:none;}
+  nav button{font-size:12px;gap:5px;padding:10px;}
+  main{margin-left:60px;padding:15px;}
+}
+</style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-church me-2"></i>
-                Sistema de Controle de Catequese
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-    </nav>
 
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-lg-2 col-md-3 sidebar d-none d-md-block p-0">
-                <div class="list-group list-group-flush">
-                    <a href="#" class="nav-link active" data-section="dashboard">
-                        <i class="fas fa-home me-2"></i> Dashboard
-                    </a>
-                    <a href="#" class="nav-link" data-section="catequizandos">
-                        <i class="fas fa-users me-2"></i> Catequizandos
-                    </a>
-                    <a href="#" class="nav-link" data-section="presenca">
-                        <i class="fas fa-calendar-check me-2"></i> Registrar Presença
-                    </a>
-                    <a href="#" class="nav-link" data-section="relatorios">
-                        <i class="fas fa-chart-bar me-2"></i> Relatórios
-                    </a>
-                    <a href="#" class="nav-link" data-section="configuracoes">
-                        <i class="fas fa-cog me-2"></i> Configurações
-                    </a>
-                </div>
-            </div>
+<nav>
+<h1><i class="fas fa-church"></i> Catequese</h1>
+<button onclick="showSection('dashboard')" id="btn-dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+<button onclick="showSection('turmas')" id="btn-turmas"><i class="fas fa-users"></i> Turmas</button>
+<button onclick="showSection('catequizandos')" id="btn-catequizandos"><i class="fas fa-user-graduate"></i> Catequizandos</button>
+<button onclick="showSection('presencas')" id="btn-presencas"><i class="fas fa-check-circle"></i> Presenças</button>
+<button onclick="showSection('ritos')" id="btn-ritos"><i class="fas fa-cross"></i> Ritos</button>
+</nav>
 
-            <!-- Main Content -->
-            <div class="col-lg-10 col-md-9 ms-sm-auto px-4 py-4">
-                <!-- Dashboard Section -->
-                <div id="dashboard-section" class="content-section">
-                    <h2 class="mb-4">Dashboard</h2>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="card dashboard-card text-center">
-                                <div class="card-body">
-                                    <i class="fas fa-users fa-3x mb-3 text-primary"></i>
-                                    <h5 class="card-title">Total de Catequizandos</h5>
-                                    <p class="stats-number" id="total-catequizandos">0</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card dashboard-card text-center">
-                                <div class="card-body">
-                                    <i class="fas fa-calendar-check fa-3x mb-3 text-success"></i>
-                                    <h5 class="card-title">Presenças Hoje</h5>
-                                    <p class="stats-number" id="presencas-hoje">0</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card dashboard-card text-center">
-                                <div class="card-body">
-                                    <i class="fas fa-church fa-3x mb-3 text-warning"></i>
-                                    <h5 class="card-title">Catequeses Realizadas</h5>
-                                    <p class="stats-number" id="total-catequeses">0</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card dashboard-card text-center">
-                                <div class="card-body">
-                                    <i class="fas fa-sticky-note fa-3x mb-3 text-info"></i>
-                                    <h5 class="card-title">Observações</h5>
-                                    <p class="stats-number" id="total-observacoes">0</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<main>
+<!-- DASHBOARD -->
+<section id="dashboard" class="active">
+<h2>Dashboard</h2>
+<div class="dashboard-cards">
+<div class="dashboard-card"><h3 id="totalTurmas">0</h3><p>Turmas</p></div>
+<div class="dashboard-card"><h3 id="totalCatequizandos">0</h3><p>Catequizandos</p></div>
+<div class="dashboard-card"><h3 id="totalPresencas">0</h3><p>Presenças</p></div>
+<div class="dashboard-card"><h3 id="totalRitos">0</h3><p>Ritos</p></div>
+</div>
+<div id="chartDiv"><canvas id="catequizandosChart"></canvas></div>
+</section>
 
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Últimas Presenças Registradas</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover" id="ultimas-presencas">
-                                            <thead>
-                                                <tr>
-                                                    <th>Nome</th>
-                                                    <th>Data</th>
-                                                    <th>Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <!-- Será preenchido via JavaScript -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Próximas Atividades</h5>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span>Encontro de Catequese</span>
-                                            <span class="badge bg-primary">Amanhã, 14h</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span>Missão Jovem</span>
-                                            <span class="badge bg-primary">Sábado, 9h</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span>Retiro Espiritual</span>
-                                            <span class="badge bg-primary">20/10, 8h</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- TURMAS -->
+<section id="turmas">
+<h2>Cadastro de Turmas</h2>
+<div class="card">
+<div class="form-group"><label>Nome</label><input type="text" id="turma_nome"></div>
+<div class="form-group"><label>Catequista</label><input type="text" id="turma_catequista"></div>
+<div class="form-group"><label>Horário</label><input type="text" id="turma_horario"></div>
+<input type="hidden" id="turma_row">
+<button class="btn" onclick="salvarTurma()">Salvar</button>
+<div id="msgTurma" class="success">Turma salva com sucesso!</div>
+</div>
+<div class="card">
+<h3>Lista de Turmas</h3>
+<table id="lista_turmas">
+<thead><tr><th>Nome</th><th>Catequista</th><th>Horário</th><th>Ações</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</section>
 
-                <!-- Catequizandos Section -->
-                <div id="catequizandos-section" class="content-section d-none">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2>Gerenciar Catequizandos</h2>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCatequizandoModal">
-                            <i class="fas fa-plus me-2"></i>Novo Catequizando
-                        </button>
-                    </div>
+<!-- CATEQUIZANDOS -->
+<section id="catequizandos">
+<h2>Cadastro de Catequizandos</h2>
+<div class="card">
+<div class="form-group"><label>Nome do Catequizando</label><input type="text" id="cat_nome"></div>
+<div class="form-group"><label>Data de Nascimento</label><input type="date" id="cat_data_nasc" onchange="calcularIdade()"></div>
+<div class="form-group"><label>Idade</label><input type="text" id="cat_idade" readonly></div>
+<div class="form-group"><label>Turma</label><select id="cat_turma"></select></div>
+<div class="form-group"><label>Nome do Responsável</label><input type="text" id="cat_responsavel"></div>
+<div class="form-group"><label>Contato do Responsável</label><input type="text" id="cat_contato_responsavel"></div>
+<div class="form-group"><label>Observações</label><textarea id="cat_observacao" rows="3"></textarea></div>
+<input type="hidden" id="cat_row">
+<button class="btn" onclick="salvarCatequizando()">Salvar</button>
+</div>
+<div class="card">
+<h3>Lista de Catequizandos</h3>
+<table id="lista_catequizandos">
+<thead><tr><th>Nome</th><th>Nascimento</th><th>Idade</th><th>Turma</th><th>Responsável</th><th>Contato</th><th>Observações</th><th>Ações</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</section>
 
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover" id="catequizandos-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Nome</th>
-                                            <th>Idade</th>
-                                            <th>Turma</th>
-                                            <th>Contato do Responsável</th>
-                                            <th>Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Será preenchido via JavaScript -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- PRESENÇAS -->
+<section id="presencas">
+<h2>Registro de Presenças</h2>
+<div class="card">
+<div class="form-group"><label>Turma</label><select id="pres_turma" onchange="carregarCatequizandosPresenca()"></select></div>
+<div class="form-group"><label>Data</label><input type="date" id="pres_data"></div>
+</div>
+<div class="card" id="lista_presencas"></div>
+</section>
 
-                <!-- Presença Section -->
-                <div id="presenca-section" class="content-section d-none">
-                    <h2 class="mb-4">Registrar Presença</h2>
-                    
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Selecionar Data</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label for="data-catequese" class="form-label">Data da Catequese</label>
-                                        <input type="date" class="form-control" id="data-catequese">
-                                    </div>
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" id="teve-catequese">
-                                        <label class="form-check-label" for="teve-catequese">
-                                            Teve catequese neste dia?
-                                        </label>
-                                    </div>
-                                    <button id="carregar-catequizandos" class="btn btn-primary">
-                                        Carregar Catequizandos
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Observações Gerais</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label for="observacoes-gerais" class="form-label">Observações sobre o dia</label>
-                                        <textarea class="form-control" id="observacoes-gerais" rows="4"></textarea>
-                                    </div>
-                                    <button id="salvar-observacoes" class="btn btn-success">
-                                        Salvar Observações
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<!-- RITOS -->
+<section id="ritos">
+<h2>Registro de Ritos</h2>
+<div class="card">
+<div class="form-group"><label>Turma</label><select id="rito_turma" onchange="carregarCatequizandosRitoPorTurma()"></select></div>
+<div class="form-group"><label>Catequizando</label><select id="rito_cat"></select></div>
+<div class="form-group"><label>Tipo de Rito</label><input type="text" id="rito_tipo"></div>
+<div class="form-group"><label>Data</label><input type="date" id="rito_data"></div>
+<input type="hidden" id="rito_row">
+<button class="btn" onclick="salvarRito()">Salvar</button>
+</div>
+<div class="card">
+<h3>Lista de Ritos</h3>
+<table id="lista_ritos">
+<thead><tr><th>Catequizando</th><th>Turma</th><th>Tipo</th><th>Data</th><th>Ações</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</section>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Lista de Catequizandos</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover" id="presenca-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Nome</th>
-                                            <th>Presença</th>
-                                            <th>Observações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Será preenchido via JavaScript -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="d-flex justify-content-end mt-3">
-                                <button id="salvar-presencas" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>Salvar Registros
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<script>
+const API_URL = "https://sheetdb.io/api/v1/a7deww2pd3giv";
 
-                <!-- Relatórios Section -->
-                <div id="relatorios-section" class="content-section d-none">
-                    <h2 class="mb-4">Relatórios</h2>
-                    
-                    <div class="row mb-4">
-                        <div class="col-md-8">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Gerar Relatório</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="relatorio-tipo" class="form-label">Tipo de Relatório</label>
-                                                <select class="form-select" id="relatorio-tipo">
-                                                    <option value="presenca">Relatório de Presença</option>
-                                                    <option value="catequese">Relatório de Catequeses Realizadas</option>
-                                                    <option value="observacoes">Relatório de Observações</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="relatorio-periodo" class="form-label">Período</label>
-                                                <select class="form-select" id="relatorio-periodo">
-                                                    <option value="semana">Esta semana</option>
-                                                    <option value="mes">Este mês</option>
-                                                    <option value="trimestre">Este trimestre</option>
-                                                    <option value="custom">Personalizado</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row" id="custom-period" style="display: none;">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="data-inicio" class="form-label">Data Início</label>
-                                                <input type="date" class="form-control" id="data-inicio">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="data-fim" class="form-label">Data Fim</label>
-                                                <input type="date" class="form-control" id="data-fim">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button id="gerar-relatorio" class="btn btn-primary">
-                                        <i class="fas fa-file-pdf me-2"></i>Gerar Relatório
-                                    </button>
-                                    <button id="exportar-excel" class="btn btn-success ms-2">
-                                        <i class="fas fa-file-excel me-2"></i>Exportar para Excel
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Estatísticas</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label class="form-label">Taxa de Presença Geral</label>
-                                        <div class="progress">
-                                            <div class="progress-bar" role="progressbar" style="width: 75%">75%</div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Catequizandos com Mais Faltas</label>
-                                        <ul class="list-group">
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                João Silva
-                                                <span class="badge bg-danger">5 faltas</span>
-                                            </li>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                Maria Santos
-                                                <span class="badge bg-warning">3 faltas</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+// Navegação
+function showSection(id){
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll("nav button").forEach(btn=>btn.classList.remove("active"));
+  document.getElementById("btn-"+id).classList.add("active");
+}
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Visualização do Relatório</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="text-center py-5" id="relatorio-placeholder">
-                                <i class="fas fa-file-pdf fa-4x text-muted mb-3"></i>
-                                <p class="text-muted">Selecione as opções e gere o relatório para visualizá-lo aqui.</p>
-                            </div>
-                            <div id="relatorio-conteudo" style="display: none;">
-                                <!-- Conteúdo do relatório será gerado aqui -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
+// Calcular idade
+function calcularIdade(){
+  const input = document.getElementById('cat_data_nasc').value;
+  if(!input) return;
+  const hoje = new Date();
+  const nasc = new Date(input);
+  let idade = hoje.getFullYear() - nasc.getFullYear();
+  const m = hoje.getMonth() - nasc.getMonth();
+  if(m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--;
+  document.getElementById('cat_idade').value = idade;
+}
 
-                <!-- Configurações Section -->
-                <div id="configuracoes-section" class="content-section d-none">
-                    <h2 class="mb-4">Configurações</h2>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Configurações do Sistema</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label for="turmas" class="form-label">Turmas/Categorias</label>
-                                        <input type="text" class="form-control" id="turmas" placeholder="Ex: Eucaristia, Crisma, etc.">
-                                        <div class="form-text">Separe as turmas com vírgula</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="frequencia-minima" class="form-label">Frequência Mínima (%)</label>
-                                        <input type="number" class="form-control" id="frequencia-minima" value="70" min="0" max="100">
-                                    </div>
-                                    <div class="form-check form-switch mb-3">
-                                        <input class="form-check-input" type="checkbox" id="notificacoes-email" checked>
-                                        <label class="form-check-label" for="notificacoes-email">
-                                            Enviar notificações por e-mail
-                                        </label>
-                                    </div>
-                                    <button class="btn btn-primary">Salvar Configurações</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Backup de Dados</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p class="card-text">Faça backup dos seus dados regularmente para evitar perdas.</p>
-                                    <div class="d-grid gap-2">
-                                        <button class="btn btn-outline-primary">
-                                            <i class="fas fa-download me-2"></i>Fazer Backup
-                                        </button>
-                                        <button class="btn btn-outline-secondary">
-                                            <i class="fas fa-upload me-2"></i>Restaurar Backup
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="card mt-4">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Sobre o Sistema</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p class="card-text">Sistema de Controle de Catequese v1.0</p>
-                                    <p class="card-text">Desenvolvido para facilitar o gerenciamento de catequizandos, presenças e relatórios.</p>
-                                    <hr>
-                                    <p class="card-text"><small class="text-muted">© 2023 - Desenvolvido com ❤️ para a comunidade</small></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+// ---------------- FUNÇÕES DASHBOARD ----------------
+async function carregarDashboard(){
+  const turmas=await (await fetch(`${API_URL}?sheet=Turmas`)).json();
+  const catequizandos=await (await fetch(`${API_URL}?sheet=Catequizandos`)).json();
+  const presencas=await (await fetch(`${API_URL}?sheet=Presencas`)).json();
+  const ritos=await (await fetch(`${API_URL}?sheet=Ritos`)).json();
 
-    <!-- Modal Adicionar Catequizando -->
-    <div class="modal fade" id="addCatequizandoModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Adicionar Novo Catequizando</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="form-catequizando">
-                        <div class="mb-3">
-                            <label for="nome" class="form-label">Nome Completo</label>
-                            <input type="text" class="form-control" id="nome" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="idade" class="form-label">Idade</label>
-                            <input type="number" class="form-control" id="idade" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="turma" class="form-label">Turma</label>
-                            <select class="form-select" id="turma" required>
-                                <option value="">Selecione uma turma</option>
-                                <option value="Eucaristia">Eucaristia</option>
-                                <option value="Crisma">Crisma</option>
-                                <option value="Iniciação">Iniciação</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="responsavel" class="form-label">Nome do Responsável</label>
-                            <input type="text" class="form-control" id="responsavel">
-                        </div>
-                        <div class="mb-3">
-                            <label for="contato" class="form-label">Contato do Responsável</label>
-                            <input type="tel" class="form-control" id="contato">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="salvar-catequizando">Salvar</button>
-                </div>
-            </div>
-        </div>
-    </div>
+  document.getElementById('totalTurmas').textContent=turmas.length;
+  document.getElementById('totalCatequizandos').textContent=catequizandos.length;
+  document.getElementById('totalPresencas').textContent=presencas.length;
+  document.getElementById('totalRitos').textContent=ritos.length;
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Dados de exemplo (em uma aplicação real, isso viria de um backend)
-        let catequizandos = [
-            { id: 1, nome: "João Silva", idade: 12, turma: "Eucaristia", responsavel: "Maria Silva", contato: "(11) 99999-9999" },
-            { id: 2, nome: "Maria Santos", idade: 13, turma: "Crisma", responsavel: "José Santos", contato: "(11) 98888-8888" },
-            { id: 3, nome: "Pedro Oliveira", idade: 11, turma: "Eucaristia", responsavel: "Ana Oliveira", contato: "(11) 97777-7777" },
-            { id: 4, nome: "Ana Costa", idade: 14, turma: "Crisma", responsavel: "Carlos Costa", contato: "(11) 96666-6666" }
-        ];
+  // Gráfico Catequizandos por Turma
+  const ctx=document.getElementById('catequizandosChart').getContext('2d');
+  const labels=[...new Set(catequizandos.map(c=>c.turma))];
+  const data=labels.map(l=>catequizandos.filter(c=>c.turma===l).length);
+  if(window.myChart)window.myChart.destroy();
+  window.myChart=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Catequizandos',data,backgroundColor:'#4CAF50'}]},options:{responsive:true}});
 
-        let registrosPresenca = [
-            { id: 1, data: "2023-09-15", catequizandos: [
-                { id: 1, presente: true, observacao: "" },
-                { id: 2, presente: false, observacao: "Avisei que não viria" },
-                { id: 3, presente: true, observacao: "" },
-                { id: 4, presente: true, observacao: "Chegou atrasado" }
-            ], teveCatequese: true, observacoesGerais: "Aula sobre os sacramentos" },
-            { id: 2, data: "2023-09-08", catequizandos: [
-                { id: 1, presente: true, observacao: "" },
-                { id: 2, presente: true, observacao: "" },
-                { id: 3, presente: false, observacao: "Estava doente" },
-                { id: 4, presente: true, observacao: "" }
-            ], teveCatequese: true, observacoesGerais: "Início do módulo sobre eucaristia" }
-        ];
+  preencherTurmas(); carregarCatequizandos(); preencherCatequizandosRito(); carregarRitos();
+}
 
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
-            // Navegação entre seções
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const section = this.getAttribute('data-section');
-                    
-                    // Esconder todas as seções
-                    document.querySelectorAll('.content-section').forEach(sec => {
-                        sec.classList.add('d-none');
-                    });
-                    
-                    // Mostrar a seção clicada
-                    document.getElementById(`${section}-section`).classList.remove('d-none');
-                    
-                    // Atualizar navegação ativa
-                    document.querySelectorAll('.nav-link').forEach(navLink => {
-                        navLink.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                    
-                    // Se for a seção de catequizandos, atualizar a tabela
-                    if (section === 'catequizandos') {
-                        atualizarTabelaCatequizandos();
-                    }
-                    
-                    // Se for o dashboard, atualizar as estatísticas
-                    if (section === 'dashboard') {
-                        atualizarDashboard();
-                    }
-                });
-            });
+// ---------------- FUNÇÕES TURMAS ----------------
+async function preencherTurmas(){
+  const turmas=await (await fetch(`${API_URL}?sheet=Turmas`)).json();
+  const tbody=document.querySelector('#lista_turmas tbody'); tbody.innerHTML='';
+  const selectCat=document.getElementById('cat_turma');
+  const selectPres=document.getElementById('pres_turma');
+  const selectRito=document.getElementById('rito_turma');
+  tbody.innerHTML=''; selectCat.innerHTML=''; selectPres.innerHTML=''; selectRito.innerHTML='';
+  turmas.forEach(t=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${t.nome}</td><td>${t.catequista}</td><td>${t.horario}</td>
+      <td><i class='fas fa-edit action-btn' onclick='editarTurma(${JSON.stringify(t)})'></i>
+          <i class='fas fa-trash action-btn' onclick='excluirTurma("${t.row}")'></i></td>`;
+    tbody.appendChild(tr);
+    selectCat.innerHTML+=`<option value='${t.nome}'>${t.nome}</option>`;
+    selectPres.innerHTML+=`<option value='${t.nome}'>${t.nome}</option>`;
+    selectRito.innerHTML+=`<option value='${t.nome}'>${t.nome}</option>`;
+  });
+}
 
-            // Configurar data atual como padrão
-            const hoje = new Date().toISOString().split('T')[0];
-            document.getElementById('data-catequese').value = hoje;
-            
-            // Carregar catequizandos para presença
-            document.getElementById('carregar-catequizandos').addEventListener('click', carregarCatequizandosPresenca);
-            
-            // Salvar presenças
-            document.getElementById('salvar-presencas').addEventListener('click', salvarPresencas);
-            
-            // Adicionar catequizando
-            document.getElementById('salvar-catequizando').addEventListener('click', adicionarCatequizando);
-            
-            // Mostrar/ocultar período personalizado
-            document.getElementById('relatorio-periodo').addEventListener('change', function() {
-                const customPeriod = document.getElementById('custom-period');
-                customPeriod.style.display = this.value === 'custom' ? 'block' : 'none';
-            });
-            
-            // Inicializar dashboard
-            atualizarDashboard();
-            atualizarTabelaCatequizandos();
-        });
+async function salvarTurma(){
+  const nome=document.getElementById('turma_nome').value;
+  const catequista=document.getElementById('turma_catequista').value;
+  const horario=document.getElementById('turma_horario').value;
+  const row=document.getElementById('turma_row').value;
+  const data={data:{nome,catequista,horario}};
+  if(row){
+    await fetch(`${API_URL}/${row}?sheet=Turmas`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  }else{
+    await fetch(`${API_URL}?sheet=Turmas`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  }
+  document.getElementById('turma_nome').value='';document.getElementById('turma_catequista').value='';document.getElementById('turma_horario').value='';document.getElementById('turma_row').value='';
+  carregarDashboard();
+}
 
-        function atualizarDashboard() {
-            document.getElementById('total-catequizandos').textContent = catequizandos.length;
-            
-            // Calcular presenças hoje
-            const hoje = new Date().toISOString().split('T')[0];
-            const registroHoje = registrosPresenca.find(r => r.data === hoje);
-            const presencasHoje = registroHoje ? registroHoje.catequizandos.filter(c => c.presente).length : 0;
-            document.getElementById('presencas-hoje').textContent = presencasHoje;
-            
-            // Total de catequeses
-            const totalCatequeses = registrosPresenca.filter(r => r.teveCatequese).length;
-            document.getElementById('total-catequeses').textContent = totalCatequeses;
-            
-            // Total de observações
-            let totalObservacoes = 0;
-            registrosPresenca.forEach(registro => {
-                if (registro.observacoesGerais) totalObservacoes++;
-                registro.catequizandos.forEach(c => {
-                    if (c.observacao) totalObservacoes++;
-                });
-            });
-            document.getElementById('total-observacoes').textContent = totalObservacoes;
-            
-            // Últimas presenças
-            const tbody = document.getElementById('ultimas-presencas').querySelector('tbody');
-            tbody.innerHTML = '';
-            
-            // Ordenar registros por data (mais recente primeiro)
-            const registrosOrdenados = [...registrosPresenca].sort((a, b) => 
-                new Date(b.data) - new Date(a.data)
-            );
-            
-            // Pegar os 5 mais recentes
-            const recentes = registrosOrdenados.slice(0, 5);
-            
-            recentes.forEach(registro => {
-                registro.catequizandos.forEach(cat => {
-                    const catequizando = catequizandos.find(c => c.id === cat.id);
-                    if (catequizando) {
-                        const tr = document.createElement('tr');
-                        
-                        const tdNome = document.createElement('td');
-                        tdNome.textContent = catequizando.nome;
-                        
-                        const tdData = document.createElement('td');
-                        const data = new Date(registro.data);
-                        tdData.textContent = data.toLocaleDateString('pt-BR');
-                        
-                        const tdStatus = document.createElement('td');
-                        const badge = document.createElement('span');
-                        badge.classList.add('badge', cat.presente ? 'bg-success' : 'bg-danger');
-                        badge.textContent = cat.presente ? 'Presente' : 'Falta';
-                        tdStatus.appendChild(badge);
-                        
-                        tr.appendChild(tdNome);
-                        tr.appendChild(tdData);
-                        tr.appendChild(tdStatus);
-                        
-                        tbody.appendChild(tr);
-                    }
-                });
-            });
-        }
+function editarTurma(t){
+  document.getElementById('turma_nome').value=t.nome;
+  document.getElementById('turma_catequista').value=t.catequista;
+  document.getElementById('turma_horario').value=t.horario;
+  document.getElementById('turma_row').value=t.row;
+}
 
-        function atualizarTabelaCatequizandos() {
-            const tbody = document.getElementById('catequizandos-table').querySelector('tbody');
-            tbody.innerHTML = '';
-            
-            catequizandos.forEach(cat => {
-                const tr = document.createElement('tr');
-                
-                const tdNome = document.createElement('td');
-                tdNome.textContent = cat.nome;
-                
-                const tdIdade = document.createElement('td');
-                tdIdade.textContent = cat.idade;
-                
-                const tdTurma = document.createElement('td');
-                tdTurma.textContent = cat.turma;
-                
-                const tdContato = document.createElement('td');
-                tdContato.textContent = cat.contato;
-                
-                const tdAcoes = document.createElement('td');
-                const btnEditar = document.createElement('button');
-                btnEditar.classList.add('btn', 'btn-sm', 'btn-warning', 'me-2');
-                btnEditar.innerHTML = '<i class="fas fa-edit"></i>';
-                btnEditar.title = 'Editar';
-                
-                const btnExcluir = document.createElement('button');
-                btnExcluir.classList.add('btn', 'btn-sm', 'btn-danger');
-                btnExcluir.innerHTML = '<i class="fas fa-trash"></i>';
-                btnExcluir.title = 'Excluir';
-                
-                tdAcoes.appendChild(btnEditar);
-                tdAcoes.appendChild(btnExcluir);
-                
-                tr.appendChild(tdNome);
-                tr.appendChild(tdIdade);
-                tr.appendChild(tdTurma);
-                tr.appendChild(tdContato);
-                tr.appendChild(tdAcoes);
-                
-                tbody.appendChild(tr);
-            });
-        }
+async function excluirTurma(row){
+  if(confirm('Deseja realmente excluir esta turma?')){
+    await fetch(`${API_URL}/${row}?sheet=Turmas`,{method:'DELETE'});
+    carregarDashboard();
+  }
+}
 
-        function carregarCatequizandosPresenca() {
-            const data = document.getElementById('data-catequese').value;
-            const teveCatequese = document.getElementById('teve-catequese').checked;
-            
-            if (!data) {
-                alert('Selecione uma data primeiro!');
-                return;
-            }
-            
-            const tbody = document.getElementById('presenca-table').querySelector('tbody');
-            tbody.innerHTML = '';
-            
-            // Verificar se já existe registro para esta data
-            const registroExistente = registrosPresenca.find(r => r.data === data);
-            
-            catequizandos.forEach(cat => {
-                const tr = document.createElement('tr');
-                
-                const tdNome = document.createElement('td');
-                tdNome.textContent = cat.nome;
-                
-                const tdPresenca = document.createElement('td');
-                const selectPresenca = document.createElement('select');
-                selectPresenca.classList.add('form-select');
-                selectPresenca.innerHTML = `
-                    <option value="true">Presente</option>
-                    <option value="false">Falta</option>
-                `;
-                
-                // Se já existir registro, preencher com os valores salvos
-                if (registroExistente) {
-                    const catequizandoRegistro = registroExistente.catequizandos.find(c => c.id === cat.id);
-                    if (catequizandoRegistro) {
-                        selectPresenca.value = catequizandoRegistro.presente.toString();
-                    }
-                }
-                
-                tdPresenca.appendChild(selectPresenca);
-                
-                const tdObservacao = document.createElement('td');
-                const inputObservacao = document.createElement('input');
-                inputObservacao.type = 'text';
-                inputObservacao.classList.add('form-control');
-                inputObservacao.placeholder = 'Observações';
-                
-                // Se já existir registro, preencher com os valores salvos
-                if (registroExistente) {
-                    const catequizandoRegistro = registroExistente.catequizandos.find(c => c.id === cat.id);
-                    if (catequizandoRegistro) {
-                        inputObservacao.value = catequizandoRegistro.observacao || '';
-                    }
-                }
-                
-                tdObservacao.appendChild(inputObservacao);
-                
-                tr.appendChild(tdNome);
-                tr.appendChild(tdPresenca);
-                tr.appendChild(tdObservacao);
-                
-                tbody.appendChild(tr);
-            });
-            
-            // Preencher observações gerais se já existir
-            if (registroExistente) {
-                document.getElementById('observacoes-gerais').value = registroExistente.observacoesGerais || '';
-                document.getElementById('teve-catequese').checked = registroExistente.teveCatequese;
-            }
-        }
+// ---------------- FUNÇÕES CATEQUIZANDOS ----------------
+async function carregarCatequizandos(){
+  const catequizandos=await (await fetch(`${API_URL}?sheet=Catequizandos`)).json();
+  const tbody=document.querySelector('#lista_catequizandos tbody'); tbody.innerHTML='';
+  catequizandos.forEach(c=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${c.nome}</td><td>${c.data_nasc}</td><td>${c.idade}</td><td>${c.turma}</td><td>${c.responsavel}</td><td>${c.contato_responsavel}</td><td>${c.observacao}</td>
+      <td><i class='fas fa-edit action-btn' onclick='editarCatequizando(${JSON.stringify(c)})'></i>
+          <i class='fas fa-trash action-btn' onclick='excluirCatequizando("${c.row}")'></i></td>`;
+    tbody.appendChild(tr);
+  });
+}
 
-        function salvarPresencas() {
-            const data = document.getElementById('data-catequese').value;
-            const teveCatequese = document.getElementById('teve-catequese').checked;
-            const observacoesGerais = document.getElementById('observacoes-gerais').value;
-            
-            if (!data) {
-                alert('Selecione uma data primeiro!');
-                return;
-            }
-            
-            const tbody = document.getElementById('presenca-table').querySelector('tbody');
-            const rows = tbody.querySelectorAll('tr');
-            
-            const catequizandosPresenca = [];
-            
-            rows.forEach(row => {
-                const nome = row.cells[0].textContent;
-                const selectPresenca = row.cells[1].querySelector('select');
-                const inputObservacao = row.cells[2].querySelector('input');
-                
-                const catequizando = catequizandos.find(c => c.nome === nome);
-                if (catequizando) {
-                    catequizandosPresenca.push({
-                        id: catequizando.id,
-                        presente: selectPresenca.value === 'true',
-                        observacao: inputObservacao.value
-                    });
-                }
-            });
-            
-            // Verificar se já existe registro para esta data
-            const index = registrosPresenca.findIndex(r => r.data === data);
-            
-            if (index !== -1) {
-                // Atualizar registro existente
-                registrosPresenca[index] = {
-                    id: registrosPresenca[index].id,
-                    data,
-                    catequizandos: catequizandosPresenca,
-                    teveCatequese,
-                    observacoesGerais
-                };
-            } else {
-                // Criar novo registro
-                registrosPresenca.push({
-                    id: registrosPresenca.length + 1,
-                    data,
-                    catequizandos: catequizandosPresenca,
-                    teveCatequese,
-                    observacoesGerais
-                });
-            }
-            
-            alert('Registros de presença salvos com sucesso!');
-        }
+function editarCatequizando(c){
+  document.getElementById('cat_nome').value=c.nome;
+  document.getElementById('cat_data_nasc').value=c.data_nasc;
+  document.getElementById('cat_idade').value=c.idade;
+  document.getElementById('cat_turma').value=c.turma;
+  document.getElementById('cat_responsavel').value=c.responsavel;
+  document.getElementById('cat_contato_responsavel').value=c.contato_responsavel;
+  document.getElementById('cat_observacao').value=c.observacao;
+  document.getElementById('cat_row').value=c.row;
+}
 
-        function adicionarCatequizando() {
-            const nome = document.getElementById('nome').value;
-            const idade = document.getElementById('idade').value;
-            const turma = document.getElementById('turma').value;
-            const responsavel = document.getElementById('responsavel').value;
-            const contato = document.getElementById('contato').value;
-            
-            if (!nome || !idade || !turma) {
-                alert('Preencha os campos obrigatórios: Nome, Idade e Turma');
-                return;
-            }
-            
-            // Adicionar novo catequizando
-            catequizandos.push({
-                id: catequizandos.length + 1,
-                nome,
-                idade: parseInt(idade),
-                turma,
-                responsavel,
-                contato
-            });
-            
-            // Fechar o modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('addCatequizandoModal'));
-            modal.hide();
-            
-            // Limpar o formulário
-            document.getElementById('form-catequizando').reset();
-            
-            // Atualizar a tabela
-            atualizarTabelaCatequizandos();
-            
-            alert('Catequizando adicionado com sucesso!');
-        }
+async function excluirCatequizando(row){
+  if(confirm('Deseja realmente excluir este catequizando?')){
+    await fetch(`${API_URL}/${row}?sheet=Catequizandos`,{method:'DELETE'});
+    carregarDashboard();
+  }
+}
 
-        // Função para gerar relatório (simulada)
-        document.getElementById('gerar-relatorio').addEventListener('click', function() {
-            const tipo = document.getElementById('relatorio-tipo').value;
-            const periodo = document.getElementById('relatorio-periodo').value;
-            
-            // Simulação de geração de relatório
-            document.getElementById('relatorio-placeholder').style.display = 'none';
-            document.getElementById('relatorio-conteudo').style.display = 'block';
-            
-            let titulo = '';
-            switch(tipo) {
-                case 'presenca':
-                    titulo = 'Relatório de Presença';
-                    break;
-                case 'catequese':
-                    titulo = 'Relatório de Catequeses Realizadas';
-                    break;
-                case 'observacoes':
-                    titulo = 'Relatório de Observações';
-                    break;
-            }
-            
-            let periodoTexto = '';
-            switch(periodo) {
-                case 'semana':
-                    periodoTexto = 'Esta semana';
-                    break;
-                case 'mes':
-                    periodoTexto = 'Este mês';
-                    break;
-                case 'trimestre':
-                    periodoTexto = 'Este trimestre';
-                    break;
-                case 'custom':
-                    const inicio = document.getElementById('data-inicio').value;
-                    const fim = document.getElementById('data-fim').value;
-                    periodoTexto = `De ${inicio} até ${fim}`;
-                    break;
-            }
-            
-            document.getElementById('relatorio-conteudo').innerHTML = `
-                <h4>${titulo}</h4>
-                <p><strong>Período:</strong> ${periodoTexto}</p>
-                <p><strong>Data de geração:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
-                <hr>
-                <p>Este é um exemplo de relatório. Em uma aplicação real, aqui seriam exibidos os dados filtrados conforme as opções selecionadas.</p>
-                <p>O relatório poderia ser impresso ou exportado para PDF com todos os detalhes das presenças, catequeses realizadas e observações.</p>
-            `;
-        });
-    </script>
+async function salvarCatequizando(){
+  const nome=document.getElementById('cat_nome').value;
+  const data_nasc=document.getElementById('cat_data_nasc').value;
+  const idade=document.getElementById('cat_idade').value;
+  const turma=document.getElementById('cat_turma').value;
+  const responsavel=document.getElementById('cat_responsavel').value;
+  const contato_responsavel=document.getElementById('cat_contato_responsavel').value;
+  const observacao=document.getElementById('cat_observacao').value;
+  const row=document.getElementById('cat_row').value;
+
+  const data={data:{nome,data_nasc,idade,turma,responsavel,contato_responsavel,observacao}};
+
+  if(row){
+    await fetch(`${API_URL}/${row}?sheet=Catequizandos`,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    });
+  }else{
+    await fetch(`${API_URL}?sheet=Catequizandos`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    });
+  }
+
+  // Limpar campos
+  document.getElementById('cat_nome').value='';
+  document.getElementById('cat_data_nasc').value='';
+  document.getElementById('cat_idade').value='';
+  document.getElementById('cat_turma').value='';
+  document.getElementById('cat_responsavel').value='';
+  document.getElementById('cat_contato_responsavel').value='';
+  document.getElementById('cat_observacao').value='';
+  document.getElementById('cat_row').value='';
+
+  carregarDashboard();
+}
+
+// ---------------- FUNÇÕES PRESENÇAS ----------------
+async function carregarCatequizandosPresenca(){
+  const turma=document.getElementById('pres_turma').value;
+  const catequizandos=await (await fetch(`${API_URL}?sheet=Catequizandos`)).json();
+  const lista=catequizandos.filter(c=>c.turma===turma);
+  const div=document.getElementById('lista_presencas'); div.innerHTML='';
+  lista.forEach(c=>{
+    const checked = c.presenca==='Sim'?'checked':'';
+    div.innerHTML+=`<div style="margin-bottom:8px;">
+      <input type="checkbox" data-row="${c.row}" ${checked} onchange="marcarPresenca(this)"/> ${c.nome}
+    </div>`;
+  });
+}
+
+async function marcarPresenca(checkbox){
+  const row=checkbox.getAttribute('data-row');
+  const presenca=checkbox.checked?'Sim':'Não';
+  await fetch(`${API_URL}/${row}?sheet=Catequizandos`,{
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({data:{presenca}})
+  });
+  carregarDashboard();
+}
+
+// ---------------- FUNÇÕES RITOS ----------------
+async function preencherCatequizandosRito(){
+  const turma=document.getElementById('rito_turma').value;
+  if(!turma) return;
+  const catequizandos=await (await fetch(`${API_URL}?sheet=Catequizandos`)).json();
+  const select=document.getElementById('rito_cat'); select.innerHTML='';
+  catequizandos.filter(c=>c.turma===turma).forEach(c=>{
+    select.innerHTML+=`<option value="${c.nome}">${c.nome}</option>`;
+  });
+}
+
+async function carregarCatequizandosRitoPorTurma(){
+  preencherCatequizandosRito();
+}
+
+async function carregarRitos(){
+  const ritos=await (await fetch(`${API_URL}?sheet=Ritos`)).json();
+  const tbody=document.querySelector('#lista_ritos tbody'); tbody.innerHTML='';
+  ritos.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r.catequizando}</td><td>${r.turma}</td><td>${r.tipo}</td><td>${r.data}</td>
+      <td><i class='fas fa-trash action-btn' onclick='excluirRito("${r.row}")'></i></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function salvarRito(){
+  const turma=document.getElementById('rito_turma').value;
+  const catequizando=document.getElementById('rito_cat').value;
+  const tipo=document.getElementById('rito_tipo').value;
+  const data=document.getElementById('rito_data').value;
+  const row=document.getElementById('rito_row').value;
+  const dados={data:{turma,catequizando,tipo,data}};
+  if(row){
+    await fetch(`${API_URL}/${row}?sheet=Ritos`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(dados)});
+  }else{
+    await fetch(`${API_URL}?sheet=Ritos`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dados)});
+  }
+  document.getElementById('rito_tipo').value='';
+  document.getElementById('rito_data').value='';
+  document.getElementById('rito_row').value='';
+  carregarDashboard();
+}
+
+async function excluirRito(row){
+  if(confirm('Deseja realmente excluir este rito?')){
+    await fetch(`${API_URL}/${row}?sheet=Ritos`,{method:'DELETE'});
+    carregarDashboard();
+  }
+}
+
+// Inicialização
+window.onload=carregarDashboard;
+</script>
+</main>
 </body>
 </html>
