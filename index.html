@@ -1,190 +1,663 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema de Catequese</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-:root{
-  --primary:#4CAF50;
-  --primary-dark:#3d8b41;
-  --bg:#f4f6f9;
-  --card-bg:#fff;
-  --text:#333;
-  --success:#d4edda;
-  --success-text:#155724;
-}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{display:flex;flex-direction:row;background:var(--bg);color:var(--text);}
-nav{
-  width:220px;background:var(--primary);color:white;min-height:100vh;
-  display:flex;flex-direction:column;padding:20px 10px;position:fixed;
-}
-nav h1{text-align:center;font-size:20px;margin-bottom:30px;font-weight:600;}
-nav button{
-  background:none;border:none;color:white;padding:12px;margin:5px 0;text-align:left;
-  cursor:pointer;border-radius:8px;font-size:15px;display:flex;align-items:center;gap:10px;transition:0.3s;
-}
-nav button:hover, nav button.active{background:var(--primary-dark);}
-main{margin-left:220px;padding:30px;width:100%;overflow-x:auto;}
-section{display:none;animation:fadeIn 0.3s ease;}
-section.active{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-h2{margin-bottom:20px;font-weight:600;}
-.card{background:var(--card-bg);padding:20px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.05);margin-bottom:25px;transition:0.3s;}
-.card:hover{transform:translateY(-2px);}
-.form-group{margin-bottom:15px;}
-.form-group label{display:block;margin-bottom:6px;font-size:14px;font-weight:600;}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;}
-textarea{resize:none;}
-.btn{background:var(--primary);color:white;padding:10px 16px;border:none;border-radius:8px;cursor:pointer;font-size:14px;transition:0.3s;}
-.btn:hover{background:var(--primary-dark);}
-table{width:100%;border-collapse:collapse;margin-top:15px;}
-table th,table td{padding:12px;text-align:left;border-bottom:1px solid #eee;font-size:14px;}
-table tr:nth-child(even){background:#fafafa;}
-table tr:hover{background:#f1f1f1;}
-.dashboard-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-bottom:30px;}
-.dashboard-card{text-align:center;background:var(--card-bg);padding:20px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.05);transition:0.3s;}
-.dashboard-card:hover{transform:translateY(-3px);}
-.dashboard-card h3{font-size:20px;margin-bottom:10px;}
-.dashboard-card p{font-size:16px;color:#555;}
-#chartDiv{background:var(--card-bg);padding:20px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.05);margin-bottom:25px;}
-.action-btn{margin-right:5px;cursor:pointer;color:var(--primary);}
-.action-btn:hover{color:var(--primary-dark);}
-.success{display:none;padding:10px;border-radius:8px;margin-bottom:15px;background:var(--success);color:var(--success-text);}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sistema de Catequese (SheetDB)</title>
 
-/* RESPONSIVO MOBILE */
-@media(max-width:768px){
-  body{flex-direction:column;}
-  nav{
-    width:100%;
-    height:auto;
-    flex-direction:row;
-    justify-content:space-around;
-    position:fixed;
-    top:0;
-    left:0;
-    z-index:1000;
-    padding:10px 0;
-  }
-  nav h1{display:none;}
-  nav button{flex:1; font-size:12px; text-align:center; padding:10px 0; margin:0;}
-  main{
-    margin-left:0;
-    margin-top:60px; /* altura do nav */
-    padding:15px;
-    width:100%;
-  }
-  .dashboard-cards{grid-template-columns:1fr !important; gap:15px;}
-  .card{padding:15px;}
-  table{display:block; overflow-x:auto; white-space:nowrap;}
-  .form-group{margin-bottom:12px;}
-}
-</style>
+  <!-- Bootstrap (para modal e utilidades) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --primary:#2f9e44;
+      --dark:#1f6f2b;
+      --bg:#f4f6f9;
+      --card:#fff;
+      --muted:#6c757d;
+    }
+    body{background:var(--bg);font-family:Inter,system-ui,Arial,Helvetica,sans-serif;}
+    .sidebar{
+      width:240px; position:fixed; left:0; top:0; bottom:0; background:var(--primary); color:white;
+      padding:18px; transition:.25s;
+    }
+    .sidebar .title{font-weight:700;font-size:20px;margin-bottom:18px}
+    .sidebar .nav-btn{display:block;color:white;text-decoration:none;padding:10px;border-radius:8px;margin-bottom:6px}
+    .sidebar .nav-btn.active, .sidebar .nav-btn:hover{background:var(--dark)}
+    .content{margin-left:260px;padding:20px;}
+    .card-box{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:18px;}
+    .small-muted{color:var(--muted);font-size:13px}
+    /* mobile */
+    @media (max-width:900px){
+      .sidebar{transform:translateX(-260px);position:fixed;z-index:1050;}
+      .sidebar.open{transform:translateX(0);}
+      .content{margin-left:0;padding:14px;}
+      .hamburger{display:inline-block;}
+    }
+    .hamburger{display:none;cursor:pointer;margin-right:8px}
+    .table-responsive{overflow:auto}
+    .search-input{max-width:320px}
+    .table-card{background:white;padding:12px;border-radius:8px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  </style>
 </head>
 <body>
 
-<nav>
-<h1><i class="fas fa-church"></i> Catequese</h1>
-<button onclick="showSection('dashboard')" id="btn-dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
-<button onclick="showSection('turmas')" id="btn-turmas"><i class="fas fa-users"></i> Turmas</button>
-<button onclick="showSection('catequizandos')" id="btn-catequizandos"><i class="fas fa-user-graduate"></i> Catequizandos</button>
-<button onclick="showSection('presencas')" id="btn-presencas"><i class="fas fa-check-circle"></i> Presenças</button>
-<button onclick="showSection('ritos')" id="btn-ritos"><i class="fas fa-cross"></i> Ritos</button>
-</nav>
+  <!-- sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="title">✝️ Catequese</div>
+    <a class="nav-btn active" data-page="dashboard" href="#!" onclick="showPage(event)">Dashboard</a>
+    <a class="nav-btn" data-page="turmas" href="#!" onclick="showPage(event)">Turmas</a>
+    <a class="nav-btn" data-page="catequizandos" href="#!" onclick="showPage(event)">Catequizandos</a>
+    <a class="nav-btn" data-page="presencas" href="#!" onclick="showPage(event)">Presenças</a>
+    <a class="nav-btn" data-page="ritos" href="#!" onclick="showPage(event)">Ritos</a>
+    <div style="height:20px"></div>
+    <div class="small-muted">Conectado a SheetDB</div>
+  </div>
 
-<main>
-<!-- DASHBOARD -->
-<section id="dashboard" class="active">
-<h2>Dashboard</h2>
-<div class="dashboard-cards">
-<div class="dashboard-card"><h3 id="totalTurmas">0</h3><p>Turmas</p></div>
-<div class="dashboard-card"><h3 id="totalCatequizandos">0</h3><p>Catequizandos</p></div>
-<div class="dashboard-card"><h3 id="totalPresencas">0</h3><p>Presenças</p></div>
-<div class="dashboard-card"><h3 id="totalRitos">0</h3><p>Ritos</p></div>
-</div>
-<div id="chartDiv"><canvas id="catequizandosChart"></canvas></div>
-</section>
+  <!-- content -->
+  <div class="content">
+    <div class="d-flex align-items-center mb-3">
+      <button class="btn btn-sm btn-outline-secondary hamburger me-2" id="hambtn" onclick="toggleSidebar()">☰</button>
+      <h3 id="pageTitle">Dashboard</h3>
+      <div class="ms-auto small-muted" id="statusInfo">API: sheetdb.io</div>
+    </div>
 
-<!-- TURMAS -->
-<section id="turmas">
-<h2>Cadastro de Turmas</h2>
-<div class="card">
-<div class="form-group"><label>Nome</label><input type="text" id="turma_nome"></div>
-<div class="form-group"><label>Catequista</label><input type="text" id="turma_catequista"></div>
-<div class="form-group"><label>Horário</label><input type="text" id="turma_horario"></div>
-<input type="hidden" id="turma_row">
-<button class="btn" onclick="salvarTurma()">Salvar</button>
-<div id="msgTurma" class="success">Turma salva com sucesso!</div>
-</div>
-<div class="card">
-<h3>Lista de Turmas</h3>
-<table id="lista_turmas">
-<thead><tr><th>Nome</th><th>Catequista</th><th>Horário</th><th>Ações</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</section>
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page">
+      <div class="row g-3 mb-3">
+        <div class="col-6 col-md-3">
+          <div class="card-box text-center">
+            <div class="small-muted">Turmas</div>
+            <h4 id="dashTurmas">0</h4>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card-box text-center">
+            <div class="small-muted">Catequizandos</div>
+            <h4 id="dashCatequs">0</h4>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card-box text-center">
+            <div class="small-muted">Presenças</div>
+            <h4 id="dashPres">0</h4>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card-box text-center">
+            <div class="small-muted">Ritos</div>
+            <h4 id="dashRitos">0</h4>
+          </div>
+        </div>
+      </div>
 
-<!-- CATEQUIZANDOS -->
-<section id="catequizandos">
-<h2>Cadastro de Catequizandos</h2>
-<div class="card">
-<div class="form-group"><label>Nome do Catequizando</label><input type="text" id="cat_nome"></div>
-<div class="form-group"><label>Data de Nascimento</label><input type="date" id="cat_data_nasc" onchange="calcularIdade()"></div>
-<div class="form-group"><label>Idade</label><input type="text" id="cat_idade" readonly></div>
-<div class="form-group"><label>Turma</label><select id="cat_turma"></select></div>
-<div class="form-group"><label>Nome do Responsável</label><input type="text" id="cat_responsavel"></div>
-<div class="form-group"><label>Contato do Responsável</label><input type="text" id="cat_contato_responsavel"></div>
-<div class="form-group"><label>Observações</label><textarea id="cat_observacao" rows="3"></textarea></div>
-<input type="hidden" id="cat_row">
-<button class="btn" onclick="salvarCatequizando()">Salvar</button>
-</div>
-<div class="card">
-<h3>Lista de Catequizandos</h3>
-<table id="lista_catequizandos">
-<thead><tr><th>Nome</th><th>Nascimento</th><th>Idade</th><th>Turma</th><th>Responsável</th><th>Contato</th><th>Observações</th><th>Ações</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</section>
+      <div class="card-box">
+        <h5>Resumo</h5>
+        <div class="small-muted">Use as abas à esquerda para gerenciar dados. Todas as ações salvam direto no Google Sheets via SheetDB.</div>
+      </div>
+    </div>
 
-<!-- PRESENÇAS -->
-<section id="presencas">
-<h2>Registro de Presenças</h2>
-<div class="card">
-<div class="form-group"><label>Turma</label><select id="pres_turma" onchange="carregarCatequizandosPresenca()"></select></div>
-<div class="form-group"><label>Data</label><input type="date" id="pres_data"></div>
-</div>
-<div class="card" id="lista_presencas"></div>
-</section>
+    <!-- TURMAS -->
+    <div id="page-turmas" class="page" style="display:none">
+      <div class="d-flex align-items-center mb-2">
+        <h4 class="me-auto">Turmas</h4>
+        <input id="searchTurmas" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar turma" oninput="renderTurmas()" />
+      </div>
 
-<!-- RITOS -->
-<section id="ritos">
-<h2>Registro de Ritos</h2>
-<div class="card">
-<div class="form-group"><label>Turma</label><select id="rito_turma" onchange="carregarCatequizandosRitoPorTurma()"></select></div>
-<div class="form-group"><label>Catequizando</label><select id="rito_cat"></select></div>
-<div class="form-group"><label>Tipo de Rito</label><input type="text" id="rito_tipo"></div>
-<div class="form-group"><label>Data</label><input type="date" id="rito_data"></div>
-<input type="hidden" id="rito_row">
-<button class="btn" onclick="salvarRito()">Salvar</button>
-</div>
-<div class="card">
-<h3>Lista de Ritos</h3>
-<table id="lista_ritos">
-<thead><tr><th>Catequizando</th><th>Turma</th><th>Tipo</th><th>Data</th><th>Ações</th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</section>
+      <div class="card-box mb-3">
+        <form id="formTurma" onsubmit="event.preventDefault(); saveTurma();">
+          <div class="row g-2">
+            <div class="col-md-5"><input id="turma_nome" class="form-control" placeholder="Nome da turma" required></div>
+            <div class="col-md-4"><input id="turma_catequista" class="form-control" placeholder="Catequista"></div>
+            <div class="col-md-3 d-flex gap-2">
+              <input id="turma_horario" class="form-control" placeholder="Horário (ex: sáb 09:00)">
+              <button class="btn btn-success">Salvar</button>
+            </div>
+          </div>
+        </form>
+      </div>
 
-<script>
-// Cole aqui todo o JS do sistema (igual no código anterior)
-</script>
+      <div id="turmasList" class="card-box">
+        <div id="turmasTableWrapper" class="table-responsive"><table id="turmasTable" class="table mb-0"></table></div>
+        <div id="turmasMobile" class="d-block d-md-none mt-2"></div>
+      </div>
+    </div>
 
+    <!-- CATEQUIZANDOS -->
+    <div id="page-catequizandos" class="page" style="display:none">
+      <div class="d-flex align-items-center mb-2">
+        <h4 class="me-auto">Catequizandos</h4>
+        <input id="searchCate" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar nome/turma" oninput="renderCatequizandos()" />
+      </div>
+
+      <div class="card-box mb-3">
+        <form id="formCate" onsubmit="event.preventDefault(); saveCatequizando();">
+          <div class="row g-2">
+            <div class="col-12 col-md-5"><input id="cat_nome" class="form-control" placeholder="Nome do catequizando" required></div>
+            <div class="col-6 col-md-2"><input id="cat_data_nasc" type="date" class="form-control" onchange="calcularIdade()" required></div>
+            <div class="col-6 col-md-1"><input id="cat_idade" class="form-control" placeholder="Idade" readonly></div>
+            <div class="col-12 col-md-4"><select id="cat_turma" class="form-select"></select></div>
+
+            <div class="col-12 col-md-5"><input id="cat_responsavel" class="form-control" placeholder="Nome do responsável"></div>
+            <div class="col-12 col-md-4"><input id="cat_contato_responsavel" class="form-control" placeholder="Contato do responsável"></div>
+            <div class="col-12 col-md-3"><input id="cat_telefone_opcional" class="form-control" placeholder="Telefone alternativo (opcional)"></div>
+
+            <div class="col-12"><textarea id="cat_observacao" class="form-control" rows="2" placeholder="Observações"></textarea></div>
+
+            <input type="hidden" id="cat_row">
+            <div class="col-12 text-end"><button class="btn btn-success">Salvar</button></div>
+          </div>
+        </form>
+      </div>
+
+      <div class="card-box">
+        <div class="table-responsive"><table id="cateTable" class="table table-sm mb-0"></table></div>
+        <div id="cateMobile" class="d-block d-md-none mt-2"></div>
+      </div>
+    </div>
+
+    <!-- PRESENCAS -->
+    <div id="page-presencas" class="page" style="display:none">
+      <div class="d-flex align-items-center mb-2">
+        <h4 class="me-auto">Presenças</h4>
+        <input id="searchPres" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar por turma/ data" oninput="renderPresencas()" />
+      </div>
+
+      <div class="card-box mb-3">
+        <form id="formPres" onsubmit="event.preventDefault(); savePresenca();">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-4"><select id="pres_turma" class="form-select" onchange="loadCatequizandoSelectForPresence()"></select></div>
+            <div class="col-md-3"><select id="pres_catequizando" class="form-select"></select></div>
+            <div class="col-md-3"><input id="pres_data" type="date" class="form-control" required></div>
+            <div class="col-md-2 d-flex gap-2"><select id="pres_status" class="form-select"><option>Presente</option><option>Faltou</option></select><button class="btn btn-success">Salvar</button></div>
+          </div>
+        </form>
+      </div>
+
+      <div class="card-box">
+        <div class="table-responsive"><table id="presTable" class="table table-sm mb-0"></table></div>
+        <div id="presMobile" class="d-block d-md-none mt-2"></div>
+      </div>
+    </div>
+
+    <!-- RITOS -->
+    <div id="page-ritos" class="page" style="display:none">
+      <div class="d-flex align-items-center mb-2">
+        <h4 class="me-auto">Ritos</h4>
+        <input id="searchRitos" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar rito/ catequizando" oninput="renderRitos()" />
+      </div>
+
+      <div class="card-box mb-3">
+        <form id="formRito" onsubmit="event.preventDefault(); saveRito();">
+          <div class="row g-2">
+            <div class="col-md-4"><select id="rito_turma" class="form-select" onchange="loadCatequizandoSelectForRito()"></select></div>
+            <div class="col-md-4"><select id="rito_catequizando" class="form-select"></select></div>
+            <div class="col-md-3"><input id="rito_tipo" class="form-control" placeholder="Tipo de rito"></div>
+            <div class="col-md-1 d-flex"><input id="rito_data" type="date" class="form-control"></div>
+          </div>
+          <input type="hidden" id="rito_row">
+          <div class="mt-2 text-end"><button class="btn btn-success">Salvar Rito</button></div>
+        </form>
+      </div>
+
+      <div class="card-box">
+        <div class="table-responsive"><table id="ritoTable" class="table table-sm mb-0"></table></div>
+        <div id="ritoMobile" class="d-block d-md-none mt-2"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal (edição genérica - usamos para catequizando/presenca/rito/turma) -->
+  <div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Editar</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="modalBody">
+          <!-- conteúdo dinamicamente inserido -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          <button id="modalSaveBtn" class="btn btn-primary">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS (modal) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  /* ----------------- CONFIG ----------------- */
+  const API_URL = "https://sheetdb.io/api/v1/a7deww2pd3giv";
+  let state = { turmas:[], cate:[], pres:[], ritos:[] };
+  const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+
+  /* ---------- UTILIDADES ---------- */
+  function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+  function showPage(ev){
+    if(ev) ev.preventDefault();
+    const target = ev ? ev.currentTarget.dataset.page : 'dashboard';
+    document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active'));
+    if(ev) ev.currentTarget.classList.add('active');
+    document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+    document.getElementById('page-'+target).style.display='block';
+    document.getElementById('pageTitle').innerText = target[0].toUpperCase()+target.slice(1);
+    // refresh small lists if needed
+    if(target==='turmas') renderTurmas();
+    if(target==='catequizandos') renderCatequizandos();
+    if(target==='presencas') renderPresencas();
+    if(target==='ritos') renderRitos();
+    if(window.innerWidth < 900) document.getElementById('sidebar').classList.remove('open');
+  }
+
+  // call on small screen hamburger
+  document.getElementById('hambtn')?.addEventListener('click', toggleSidebar);
+
+  /* ---------- CALCULO IDADE ---------- */
+  function calcularIdade(){
+    const v = document.getElementById('cat_data_nasc').value;
+    if(!v) { document.getElementById('cat_idade').value=''; return; }
+    const nasc = new Date(v), hoje = new Date();
+    let idade = hoje.getFullYear() - nasc.getFullYear();
+    const m = hoje.getMonth() - nasc.getMonth();
+    if(m < 0 || (m===0 && hoje.getDate() < nasc.getDate())) idade--;
+    document.getElementById('cat_idade').value = idade;
+  }
+
+  /* ---------- FETCH / CRUD helpers ---------- */
+  async function apiGet(sheet){
+    const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`);
+    return res.ok ? res.json() : [];
+  }
+  async function apiPost(sheet, payload){
+    const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`,{
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data:payload})
+    });
+    return res;
+  }
+  async function apiPut(row, sheet, payload){
+    const res = await fetch(`${API_URL}/${row}?sheet=${encodeURIComponent(sheet)}`,{
+      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data:payload})
+    });
+    return res;
+  }
+  async function apiDelete(row, sheet){
+    const res = await fetch(`${API_URL}/${row}?sheet=${encodeURIComponent(sheet)}`,{ method:'DELETE' });
+    return res;
+  }
+
+  /* ---------- LOAD ALL ---------- */
+  async function loadAll(){
+    // load each sheet
+    state.turmas = await apiGet('Turmas');
+    state.cate = await apiGet('Catequizandos');
+    state.pres = await apiGet('Presencas');
+    state.ritos = await apiGet('Ritos');
+    // render UI
+    renderTurmas(); renderCatequizandos(); renderPresencas(); renderRitos(); renderDashboard();
+    fillSelects();
+  }
+
+  /* ---------- DASHBOARD ---------- */
+  function renderDashboard(){
+    document.getElementById('dashTurmas').innerText = state.turmas.length;
+    document.getElementById('dashCatequs').innerText = state.cate.length;
+    document.getElementById('dashPres').innerText = state.pres.length;
+    document.getElementById('dashRitos').innerText = state.ritos.length;
+  }
+
+  /* ---------- TURMAS ---------- */
+  async function saveTurma(){
+    const nome = document.getElementById('turma_nome').value.trim();
+    const catequista = document.getElementById('turma_catequista').value.trim();
+    const horario = document.getElementById('turma_horario').value.trim();
+    if(!nome) return alert('Informe nome da turma');
+    await apiPost('Turmas',{nome,catequista,horario});
+    document.getElementById('turma_nome').value=''; document.getElementById('turma_catequista').value=''; document.getElementById('turma_horario').value='';
+    await loadAll();
+    showPage({preventDefault:()=>{}, currentTarget: document.querySelector('[data-page="turmas"]')});
+  }
+
+  function renderTurmas(){
+    const q = (document.getElementById('searchTurmas')?.value||'').toLowerCase();
+    const rows = state.turmas.filter(t => (t.nome||'').toLowerCase().includes(q) || (t.catequista||'').toLowerCase().includes(q));
+    // desktop table
+    let html = `<thead><tr><th>Nome</th><th>Catequista</th><th>Horário</th><th>Ações</th></tr></thead><tbody>`;
+    rows.forEach(t=>{
+      html += `<tr>
+        <td>${t.nome||''}</td>
+        <td>${t.catequista||''}</td>
+        <td>${t.horario||''}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary" onclick='openEditTurma(${JSON.stringify(t).replace(/'/g,"&#39;")})'>Editar</button>
+          <button class="btn btn-sm btn-outline-danger" onclick='deleteTurma("${t.row}")'>Excluir</button>
+        </td>
+      </tr>`;
+    });
+    html += `</tbody>`;
+    document.getElementById('turmasTable').innerHTML = html;
+
+    // mobile cards
+    const mobile = rows.map(t=>`<div class="table-card">
+      <div><strong>${t.nome||''}</strong></div>
+      <div class="small-muted">${t.catequista||''} • ${t.horario||''}</div>
+      <div class="mt-2"><button class="btn btn-sm btn-outline-primary" onclick='openEditTurma(${JSON.stringify(t).replace(/'/g,"&#39;")})'>Editar</button>
+      <button class="btn btn-sm btn-outline-danger" onclick='deleteTurma("${t.row}")'>Excluir</button></div>
+    </div>`).join('');
+    document.getElementById('turmasMobile').innerHTML = mobile;
+  }
+
+  function openEditTurma(t){
+    // build modal body
+    document.getElementById('modalTitle').innerText = 'Editar Turma';
+    document.getElementById('modalBody').innerHTML = `
+      <div class="mb-2"><label>Nome</label><input id="m_t_nome" class="form-control" value="${t.nome||''}"></div>
+      <div class="mb-2"><label>Catequista</label><input id="m_t_cate" class="form-control" value="${t.catequista||''}"></div>
+      <div class="mb-2"><label>Horário</label><input id="m_t_hor" class="form-control" value="${t.horario||''}"></div>
+      <input type="hidden" id="m_t_row" value="${t.row}">
+    `;
+    document.getElementById('modalSaveBtn').onclick = async ()=>{
+      const row = document.getElementById('m_t_row').value;
+      const nome = document.getElementById('m_t_nome').value;
+      const catequista = document.getElementById('m_t_cate').value;
+      const horario = document.getElementById('m_t_hor').value;
+      await apiPut(row,'Turmas',{nome,catequista,horario});
+      editModal.hide();
+      await loadAll();
+    };
+    editModal.show();
+  }
+
+  async function deleteTurma(row){
+    if(!confirm('Excluir turma?')) return;
+    await apiDelete(row,'Turmas');
+    await loadAll();
+  }
+
+  /* ---------- CATEQUIZANDOS ---------- */
+  async function saveCatequizando(){
+    const nome = document.getElementById('cat_nome').value.trim();
+    const data_nasc = document.getElementById('cat_data_nasc').value;
+    const idade = document.getElementById('cat_idade').value;
+    const turma = document.getElementById('cat_turma').value;
+    const responsavel = document.getElementById('cat_responsavel').value.trim();
+    const contato_responsavel = document.getElementById('cat_contato_responsavel').value.trim();
+    const observacao = document.getElementById('cat_observacao').value.trim();
+    const row = document.getElementById('cat_row').value;
+
+    if(!nome) return alert('Nome é obrigatório');
+    const payload = {nome,data_nasc,idade,turma,responsavel,contato_responsavel,observacao};
+
+    if(row){
+      await apiPut(row,'Catequizandos',payload);
+    } else {
+      await apiPost('Catequizandos', payload);
+    }
+
+    // limpar
+    ['cat_nome','cat_data_nasc','cat_idade','cat_turma','cat_responsavel','cat_contato_responsavel','cat_observacao','cat_row']
+      .forEach(id=>document.getElementById(id).value='');
+
+    await loadAll();
+    showPage({preventDefault:()=>{}, currentTarget: document.querySelector('[data-page="catequizandos"]')});
+  }
+
+  function renderCatequizandos(){
+    const q = (document.getElementById('searchCate')?.value||'').toLowerCase();
+    const rows = state.cate.filter(c => (c.nome||'').toLowerCase().includes(q) || (c.turma||'').toLowerCase().includes(q));
+    let html = `<thead><tr><th>Nome</th><th>Turma</th><th>Idade</th><th>Responsável</th><th>Ações</th></tr></thead><tbody>`;
+    rows.forEach(c=>{
+      html += `<tr>
+        <td>${c.nome||''}</td><td>${c.turma||''}</td><td>${c.idade||''}</td><td>${c.responsavel||''}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary" onclick='openEditCate(${JSON.stringify(c).replace(/'/g,"&#39;")})'>Editar</button>
+          <button class="btn btn-sm btn-outline-danger" onclick='deleteCate("${c.row}")'>Excluir</button>
+        </td>
+      </tr>`;
+    });
+    html += `</tbody>`;
+    document.getElementById('cateTable').innerHTML = html;
+
+    // mobile
+    const mobile = rows.map(c=>`<div class="table-card">
+      <div><strong>${c.nome||''}</strong> <span class="small-muted">(${c.turma||''})</span></div>
+      <div>${c.idade||''} anos • ${c.responsavel||''}</div>
+      <div class="mt-2">
+        <button class="btn btn-sm btn-outline-primary" onclick='openEditCate(${JSON.stringify(c).replace(/'/g,"&#39;")})'>Editar</button>
+        <button class="btn btn-sm btn-outline-danger" onclick='deleteCate("${c.row}")'>Excluir</button>
+      </div>
+    </div>`).join('');
+    document.getElementById('cateMobile').innerHTML = mobile;
+  }
+
+  function openEditCate(c){
+    // populate modal
+    document.getElementById('modalTitle').innerText = 'Editar Catequizando';
+    document.getElementById('modalBody').innerHTML = `
+      <div class="row g-2">
+        <div class="col-md-6"><label>Nome</label><input id="m_c_nome" class="form-control" value="${c.nome||''}"></div>
+        <div class="col-md-3"><label>Data Nasc</label><input id="m_c_nasc" type="date" class="form-control" value="${c.data_nasc||''}"></div>
+        <div class="col-md-3"><label>Idade</label><input id="m_c_idade" class="form-control" readonly value="${c.idade||''}"></div>
+        <div class="col-md-6"><label>Turma</label><select id="m_c_turma" class="form-select"></select></div>
+        <div class="col-md-6"><label>Responsável</label><input id="m_c_resp" class="form-control" value="${c.responsavel||''}"></div>
+        <div class="col-md-6"><label>Contato</label><input id="m_c_cont" class="form-control" value="${c.contato_responsavel||''}"></div>
+        <div class="col-12"><label>Observação</label><textarea id="m_c_obs" class="form-control">${c.observacao||''}</textarea></div>
+        <input type="hidden" id="m_c_row" value="${c.row}">
+      </div>
+    `;
+    // fill turma options
+    const selHtml = state.turmas.map(t => `<option ${t.nome===c.turma ? 'selected':''} value="${t.nome}">${t.nome}</option>`).join('');
+    setTimeout(()=>{ document.getElementById('m_c_turma').innerHTML = selHtml; }, 50);
+
+    document.getElementById('modalSaveBtn').onclick = async ()=>{
+      const row = document.getElementById('m_c_row').value;
+      const nome = document.getElementById('m_c_nome').value;
+      const data_nasc = document.getElementById('m_c_nasc').value;
+      const idade = document.getElementById('m_c_idade').value;
+      const turma = document.getElementById('m_c_turma').value;
+      const responsavel = document.getElementById('m_c_resp').value;
+      const contato = document.getElementById('m_c_cont').value;
+      const observacao = document.getElementById('m_c_obs').value;
+      await apiPut(row,'Catequizandos',{nome,data_nasc,idade,turma,responsavel,contato_responsavel:contato,observacao});
+      editModal.hide();
+      await loadAll();
+    };
+    editModal.show();
+  }
+
+  async function deleteCate(row){
+    if(!confirm('Excluir catequizando?')) return;
+    await apiDelete(row,'Catequizandos');
+    await loadAll();
+  }
+
+  /* ---------- PRESENÇAS ---------- */
+  async function loadCatequizandoSelectForPresence(){
+    const turma = document.getElementById('pres_turma').value;
+    const opts = state.cate.filter(c=>c.turma===turma).map(c=>`<option value="${c.nome}">${c.nome}</option>`).join('');
+    document.getElementById('pres_catequizando').innerHTML = opts;
+  }
+
+  async function savePresenca(){
+    const catequizando = document.getElementById('pres_catequizando').value;
+    const turma = document.getElementById('pres_turma').value;
+    const data = document.getElementById('pres_data').value;
+    const status = document.getElementById('pres_status').value;
+    if(!catequizando || !turma || !data) return alert('Preencha os campos');
+    await apiPost('Presencas',{catequizando,turma,data,status});
+    document.getElementById('pres_data').value='';
+    await loadAll();
+  }
+
+  function renderPresencas(){
+    const q = (document.getElementById('searchPres')?.value||'').toLowerCase();
+    const rows = state.pres.filter(p => (p.turma||'').toLowerCase().includes(q) || (p.data||'').toLowerCase().includes(q));
+    let html = `<thead><tr><th>Data</th><th>Turma</th><th>Catequizando</th><th>Status</th><th>Ações</th></tr></thead><tbody>`;
+    rows.forEach(p=>{
+      html += `<tr>
+        <td>${p.data||''}</td><td>${p.turma||''}</td><td>${p.catequizando||''}</td><td>${p.status||''}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary" onclick='openEditPres(${JSON.stringify(p).replace(/'/g,"&#39;")})'>Editar</button>
+          <button class="btn btn-sm btn-outline-danger" onclick='deletePres("${p.row}")'>Excluir</button>
+        </td>
+      </tr>`;
+    });
+    html += `</tbody>`;
+    document.getElementById('presTable').innerHTML = html;
+    const mobile = rows.map(p=>`<div class="table-card">
+      <div><strong>${p.catequizando||''}</strong> <span class="small-muted">${p.turma||''}</span></div>
+      <div>${p.data||''} • ${p.status||''}</div>
+      <div class="mt-2"><button class="btn btn-sm btn-outline-primary" onclick='openEditPres(${JSON.stringify(p).replace(/'/g,"&#39;")})'>Editar</button>
+      <button class="btn btn-sm btn-outline-danger" onclick='deletePres("${p.row}")'>Excluir</button></div>
+    </div>`).join('');
+    document.getElementById('presMobile').innerHTML = mobile;
+  }
+
+  function openEditPres(p){
+    document.getElementById('modalTitle').innerText = 'Editar Presença';
+    document.getElementById('modalBody').innerHTML = `
+      <div class="mb-2"><label>Data</label><input id="m_p_data" type="date" class="form-control" value="${p.data||''}"></div>
+      <div class="mb-2"><label>Turma</label><select id="m_p_turma" class="form-select"></select></div>
+      <div class="mb-2"><label>Catequizando</label><select id="m_p_cat" class="form-select"></select></div>
+      <div class="mb-2"><label>Status</label><select id="m_p_status" class="form-select"><option ${p.status==='Presente'?'selected':''}>Presente</option><option ${p.status==='Faltou'?'selected':''}>Faltou</option></select></div>
+      <input type="hidden" id="m_p_row" value="${p.row}">
+    `;
+    setTimeout(()=>{
+      document.getElementById('m_p_turma').innerHTML = state.turmas.map(t=>`<option ${t.nome===p.turma?'selected':''} value="${t.nome}">${t.nome}</option>`).join('');
+      loadCatOptionsForModal('m_p_turma','m_p_cat',p.catequizando);
+    },50);
+
+    document.getElementById('m_p_turma')?.addEventListener('change', ()=> loadCatOptionsForModal('m_p_turma','m_p_cat',p.catequizando) );
+
+    document.getElementById('modalSaveBtn').onclick = async ()=>{
+      const row = document.getElementById('m_p_row').value;
+      const data = document.getElementById('m_p_data').value;
+      const turma = document.getElementById('m_p_turma').value;
+      const catequizando = document.getElementById('m_p_cat').value;
+      const status = document.getElementById('m_p_status').value;
+      await apiPut(row,'Presencas',{catequizando,turma,data,status});
+      editModal.hide(); await loadAll();
+    };
+    editModal.show();
+  }
+
+  async function loadCatOptionsForModal(turmaSelId, catSelId, selected){
+    const turma = document.getElementById(turmaSelId).value;
+    const opts = state.cate.filter(c=>c.turma===turma).map(c=>`<option ${c.nome===selected?'selected':''} value="${c.nome}">${c.nome}</option>`).join('');
+    document.getElementById(catSelId).innerHTML = opts;
+  }
+
+  async function deletePres(row){
+    if(!confirm('Excluir presença?')) return;
+    await apiDelete(row,'Presencas'); await loadAll();
+  }
+
+  /* ---------- RITOS ---------- */
+  async function loadCatequizandoSelectForRito(){
+    const turma = document.getElementById('rito_turma').value;
+    const opts = state.cate.filter(c=>c.turma===turma).map(c=>`<option value="${c.nome}">${c.nome}</option>`).join('');
+    document.getElementById('rito_catequizando').innerHTML = opts;
+  }
+
+  async function saveRito(){
+    const catequizando = document.getElementById('rito_catequizando').value;
+    const turma = document.getElementById('rito_turma').value;
+    const tipo = document.getElementById('rito_tipo').value;
+    const data = document.getElementById('rito_data').value;
+    const row = document.getElementById('rito_row').value;
+    if(!catequizando || !tipo) return alert('Preencha os campos');
+    const payload = {catequizando,turma,tipo,data};
+    if(row) await apiPut(row,'Ritos',payload);
+    else await apiPost('Ritos',payload);
+    document.getElementById('rito_tipo').value=''; document.getElementById('rito_data').value=''; document.getElementById('rito_row').value='';
+    await loadAll();
+  }
+
+  function renderRitos(){
+    const q = (document.getElementById('searchRitos')?.value||'').toLowerCase();
+    const rows = state.ritos.filter(r => (r.catequizando||'').toLowerCase().includes(q) || (r.turma||'').toLowerCase().includes(q) || (r.tipo||'').toLowerCase().includes(q));
+    let html = `<thead><tr><th>Data</th><th>Turma</th><th>Catequizando</th><th>Rito</th><th>Ações</th></tr></thead><tbody>`;
+    rows.forEach(r=>{
+      html += `<tr>
+        <td>${r.data||''}</td><td>${r.turma||''}</td><td>${r.catequizando||''}</td><td>${r.tipo||''}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary" onclick='openEditRito(${JSON.stringify(r).replace(/'/g,"&#39;")})'>Editar</button>
+          <button class="btn btn-sm btn-outline-danger" onclick='deleteRito("${r.row}")'>Excluir</button>
+        </td>
+      </tr>`;
+    });
+    html += `</tbody>`;
+    document.getElementById('ritoTable').innerHTML = html;
+    const mobile = rows.map(r=>`<div class="table-card">
+      <div><strong>${r.tipo||''}</strong> <span class="small-muted">(${r.turma||''})</span></div>
+      <div>${r.catequizando||''} • ${r.data||''}</div>
+      <div class="mt-2"><button class="btn btn-sm btn-outline-primary" onclick='openEditRito(${JSON.stringify(r).replace(/'/g,"&#39;")})'>Editar</button>
+      <button class="btn btn-sm btn-outline-danger" onclick='deleteRito("${r.row}")'>Excluir</button></div>
+    </div>`).join('');
+    document.getElementById('ritoMobile').innerHTML = mobile;
+  }
+
+  function openEditRito(r){
+    document.getElementById('modalTitle').innerText = 'Editar Rito';
+    document.getElementById('modalBody').innerHTML = `
+      <div class="mb-2"><label>Turma</label><select id="m_r_turma" class="form-select"></select></div>
+      <div class="mb-2"><label>Catequizando</label><select id="m_r_cat" class="form-select"></select></div>
+      <div class="mb-2"><label>Tipo</label><input id="m_r_tipo" class="form-control" value="${r.tipo||''}"></div>
+      <div class="mb-2"><label>Data</label><input id="m_r_data" type="date" class="form-control" value="${r.data||''}"></div>
+      <input type="hidden" id="m_r_row" value="${r.row}">
+    `;
+    setTimeout(()=>{
+      document.getElementById('m_r_turma').innerHTML = state.turmas.map(t=>`<option ${t.nome===r.turma?'selected':''} value="${t.nome}">${t.nome}</option>`).join('');
+      loadCatOptionsForModal('m_r_turma','m_r_cat', r.catequizando);
+    },50);
+    document.getElementById('m_r_turma')?.addEventListener('change', ()=> loadCatOptionsForModal('m_r_turma','m_r_cat', r.catequizando) );
+
+    document.getElementById('modalSaveBtn').onclick = async ()=>{
+      const row = document.getElementById('m_r_row').value;
+      const turma = document.getElementById('m_r_turma').value;
+      const catequizando = document.getElementById('m_r_cat').value;
+      const tipo = document.getElementById('m_r_tipo').value;
+      const data = document.getElementById('m_r_data').value;
+      await apiPut(row,'Ritos',{catequizando,turma,tipo,data});
+      editModal.hide(); await loadAll();
+    };
+    editModal.show();
+  }
+
+  async function deleteRito(row){
+    if(!confirm('Excluir rito?')) return;
+    await apiDelete(row,'Ritos'); await loadAll();
+  }
+
+  /* ---------- AUX: preencher selects ---------- */
+  function fillSelects(){
+    // turmas for many selects
+    const opts = state.turmas.map(t=>`<option value="${t.nome}">${t.nome}</option>`).join('');
+    document.querySelectorAll('#cat_turma, #pres_turma, #rito_turma, #turmaCatequizando, #turmaPresenca, #turmaRito').forEach(s=>{
+      if(s) s.innerHTML = opts;
+    });
+    // ensure presence select refreshed
+    loadCatequizandoSelectForPresence();
+    loadCatequizandoSelectForRito();
+  }
+
+  /* ---------- INIT ---------- */
+  async function init(){
+    await loadAll();
+    // attach global event listeners after load
+    document.getElementById('searchTurmas')?.addEventListener('input', renderTurmas);
+    document.getElementById('searchCate')?.addEventListener('input', renderCatequizandos);
+    document.getElementById('searchPres')?.addEventListener('input', renderPresencas);
+    document.getElementById('searchRitos')?.addEventListener('input', renderRitos);
+
+    // form pres submit handler (we use separate function)
+    document.getElementById('formPres')?.addEventListener('submit', async (e)=>{ e.preventDefault(); await savePresenca(); document.getElementById('pres_data').value=''; });
+  }
+  init();
+  </script>
 </body>
 </html>
