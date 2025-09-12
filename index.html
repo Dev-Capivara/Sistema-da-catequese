@@ -3,24 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema Catequese</title>
+<title>Sistema de Catequese</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4;}
-    header { background:#4CAF50; color:#fff; padding:10px 20px; text-align:center; }
+    header { background:#4CAF50; color:#fff; padding:15px 20px; text-align:center; }
     h1 { margin:0; }
     .container { padding:20px; max-width:1200px; margin:auto; }
-    button { cursor:pointer; padding:8px 12px; border:none; border-radius:4px; background:#4CAF50; color:#fff; margin:2px; }
+    button { cursor:pointer; padding:8px 12px; border:none; border-radius:4px; background:#4CAF50; color:#fff; margin:2px; transition:0.3s;}
     button:hover { background:#45a049; }
-    table { width:100%; border-collapse:collapse; margin:10px 0;}
-    th, td { border:1px solid #ddd; padding:8px; text-align:left;}
-    th { background:#4CAF50; color:white; }
-    select, input { padding:6px; margin:4px 0; width:100%; box-sizing:border-box; }
-    .modal { display:none; position:fixed; z-index:1; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.5); }
-    .modal-content { background:#fff; margin:10% auto; padding:20px; border-radius:8px; width:90%; max-width:600px; }
+    table { width:100%; border-collapse:collapse; margin:10px 0; box-shadow:0 0 5px rgba(0,0,0,0.1);}
+    th, td { border:1px solid #ddd; padding:8px; text-align:left; }
+    th { background:#4CAF50; color:white; position: sticky; top:0; }
+    select, input, textarea { padding:6px; margin:4px 0; width:100%; box-sizing:border-box; border-radius:4px; border:1px solid #ccc; }
+    .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.5); transition:0.3s;}
+    .modal-content { background:#fff; margin:5% auto; padding:20px; border-radius:10px; width:90%; max-width:600px; box-shadow:0 0 15px rgba(0,0,0,0.3); animation:fadeIn 0.3s;}
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
     .close { color:#aaa; float:right; font-size:28px; font-weight:bold; }
     .close:hover { color:#000; cursor:pointer; }
-    @media(max-width:768px){ table, th, td { font-size:12px; } }
+    .cards { display:flex; flex-wrap:wrap; gap:15px; margin-bottom:20px; }
+    .card { flex:1 1 200px; background:#fff; padding:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1); text-align:center; }
+    .card i { font-size:30px; margin-bottom:10px; color:#4CAF50; }
+    @media(max-width:768px){ table, th, td { font-size:12px; } .cards { flex-direction:column; } }
 </style>
 </head>
 <body>
@@ -31,11 +36,24 @@
 
 <div class="container">
     <h2>Dashboard</h2>
-    <div id="dashboard">
-        <p>Total de Turmas: <span id="totalTurmas">0</span></p>
-        <p>Total de Catequizandos: <span id="totalCatequizandos">0</span></p>
-        <p>Total de Ritos Aplicados: <span id="totalRitos">0</span></p>
+    <div class="cards">
+        <div class="card">
+            <i class="fas fa-users"></i>
+            <h3 id="totalTurmas">0</h3>
+            <p>Turmas</p>
+        </div>
+        <div class="card">
+            <i class="fas fa-user"></i>
+            <h3 id="totalCatequizandos">0</h3>
+            <p>Catequizandos</p>
+        </div>
+        <div class="card">
+            <i class="fas fa-scroll"></i>
+            <h3 id="totalRitos">0</h3>
+            <p>Ritos Aplicados</p>
+        </div>
     </div>
+    <canvas id="graficoPresenca" height="100"></canvas>
 
     <hr>
 
@@ -113,9 +131,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const API = "https://sheetdb.io/api/v1/a7deww2pd3giv";
-let turmas=[], ritos=[], catequizandos=[];
+let turmas=[], ritos=[], catequizandos=[], grafico=null;
 
-// Função auxiliar para calcular idade
 function calcularIdade(dataNasc){
     const hoje = new Date();
     const nasc = new Date(dataNasc);
@@ -125,39 +142,32 @@ function calcularIdade(dataNasc){
     return idade;
 }
 
-// Dashboard
 function atualizarDashboard(){
     document.getElementById("totalTurmas").innerText = turmas.length;
     document.getElementById("totalCatequizandos").innerText = catequizandos.length;
     document.getElementById("totalRitos").innerText = ritos.length;
+    atualizarGrafico();
 }
 
-// CARREGAR DADOS
 async function carregarDados(){
     const res = await fetch(API);
     const data = await res.json();
-    // separar dados por aba
-    turmas = data.filter(d => d.sheet==="Turmas");
-    ritos = data.filter(d => d.sheet==="Ritos");
-    catequizandos = data.filter(d => d.sheet==="Catequizandos");
+    turmas = data.filter(d=>d.sheet==="Turmas");
+    ritos = data.filter(d=>d.sheet==="Ritos");
+    catequizandos = data.filter(d=>d.sheet==="Catequizandos");
     atualizarDashboard();
     preencherTabelas();
 }
 carregarDados();
 
-// PREENCHE TABELAS
 function preencherTabelas(){
     const tabelaTurmas = document.querySelector("#tabelaTurmas tbody");
     const tabelaRitos = document.querySelector("#tabelaRitos tbody");
     const tabelaCate = document.querySelector("#tabelaCatequizandos tbody");
     tabelaTurmas.innerHTML=""; tabelaRitos.innerHTML=""; tabelaCate.innerHTML="";
 
-    turmas.forEach(t=>{
-        tabelaTurmas.innerHTML += `<tr><td>${t.nome}</td><td><button onclick="excluirTurma('${t.id}')">Excluir</button></td></tr>`;
-    });
-    ritos.forEach(r=>{
-        tabelaRitos.innerHTML += `<tr><td>${r.nome}</td><td>${r.turma}</td><td><button onclick="excluirRito('${r.id}')">Excluir</button></td></tr>`;
-    });
+    turmas.forEach(t=>tabelaTurmas.innerHTML += `<tr><td>${t.nome}</td><td><button onclick="excluirTurma('${t.id}')">Excluir</button></td></tr>`);
+    ritos.forEach(r=>tabelaRitos.innerHTML += `<tr><td>${r.nome}</td><td>${r.turma}</td><td><button onclick="excluirRito('${r.id}')">Excluir</button></td></tr>`);
     catequizandos.forEach(c=>{
         tabelaCate.innerHTML += `<tr>
             <td>${c.nome}</td>
@@ -170,39 +180,29 @@ function preencherTabelas(){
         </tr>`;
     });
 
-    // preencher selects
     const turmaSelects = ["turmaCatequizando","turmaEditar","ritoTurma","turmaPresenca","relatorioTurma"];
     turmaSelects.forEach(id=>{
         const sel = document.getElementById(id);
-        sel.innerHTML = '<option value="">Selecione a Turma</option>';
-        turmas.forEach(t=>{
-            sel.innerHTML += `<option value="${t.nome}">${t.nome}</option>`;
-        });
+        sel.innerHTML='<option value="">Selecione a Turma</option>';
+        turmas.forEach(t=>sel.innerHTML+=`<option value="${t.nome}">${t.nome}</option>`);
     });
-
-    // tabela presença
     atualizarTabelaPresenca();
 }
 
-// ATUALIZAR TABELA PRESENÇA
 function atualizarTabelaPresenca(){
     const turma = document.getElementById("turmaPresenca").value;
     const tabela = document.querySelector("#tabelaPresenca tbody");
     tabela.innerHTML="";
     catequizandos.filter(c=>c.turma===turma).forEach(c=>{
-        tabela.innerHTML += `<tr>
-            <td>${c.nome}</td>
-            <td><input type="checkbox" data-id="${c.id}"></td>
-        </tr>`;
+        tabela.innerHTML += `<tr><td>${c.nome}</td><td><input type="checkbox" data-id="${c.id}" ${c.presente==="Sim"?"checked":""}></td></tr>`;
     });
 }
 document.getElementById("turmaPresenca").addEventListener("change", atualizarTabelaPresenca);
 
-// CADASTROS
 async function cadastrarTurma(){
     const nome = document.getElementById("nomeTurma").value;
     if(!nome) return alert("Informe o nome da turma");
-    await fetch(API, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({data:{sheet:"Turmas",nome}})});
+    await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{sheet:"Turmas",nome}})});
     document.getElementById("nomeTurma").value="";
     carregarDados();
 }
@@ -211,7 +211,7 @@ async function cadastrarRito(){
     const nome = document.getElementById("nomeRito").value;
     const turma = document.getElementById("ritoTurma").value;
     if(!nome || !turma) return alert("Preencha todos os campos");
-    await fetch(API, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({data:{sheet:"Ritos",nome,turma}})});
+    await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{sheet:"Ritos",nome,turma}})});
     document.getElementById("nomeRito").value="";
     carregarDados();
 }
@@ -223,8 +223,8 @@ async function cadastrarCatequizando(){
     const data = document.getElementById("dataNascimento").value;
     const turma = document.getElementById("turmaCatequizando").value;
     const observacao = document.getElementById("observacao").value;
-    if(!nome || !turma) return alert("Preencha todos os campos obrigatórios");
-    await fetch(API, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({data:{sheet:"Catequizandos",nome,responsavel,contato,data,turma,observacao}})});
+    if(!nome || !turma) return alert("Preencha os campos obrigatórios");
+    await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{sheet:"Catequizandos",nome,responsavel,contato,data,turma,observacao}})});
     document.getElementById("nomeCatequizando").value="";
     document.getElementById("responsavel").value="";
     document.getElementById("contatoResponsavel").value="";
@@ -234,7 +234,7 @@ async function cadastrarCatequizando(){
     carregarDados();
 }
 
-// MODAL
+// Modal e edição
 function abrirModal(id){
     const c = catequizandos.find(x=>x.id===id);
     document.getElementById("idEditar").value = c.id;
@@ -255,27 +255,26 @@ async function salvarEdicao(){
     const data = document.getElementById("dataEditar").value;
     const turma = document.getElementById("turmaEditar").value;
     const observacao = document.getElementById("observacaoEditar").value;
-    await fetch(`${API}/id/${id}`, {method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify({data:{nome,responsavel,contato,data,turma,observacao}})});
-    fecharModal();
-    carregarDados();
+    await fetch(`${API}/id/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{nome,responsavel,contato,data,turma,observacao}})});
+    fecharModal(); carregarDados();
 }
 
-// EXCLUIR
-async function excluirTurma(id){ await fetch(`${API}/id/${id}`, {method:"DELETE"}); carregarDados(); }
-async function excluirRito(id){ await fetch(`${API}/id/${id}`, {method:"DELETE"}); carregarDados(); }
+// Excluir
+async function excluirTurma(id){ await fetch(`${API}/id/${id}`,{method:"DELETE"}); carregarDados(); }
+async function excluirRito(id){ await fetch(`${API}/id/${id}`,{method:"DELETE"}); carregarDados(); }
 
-// PRESENÇA
+// Presença
 async function salvarPresenca(){
     const checkboxes = document.querySelectorAll("#tabelaPresenca input[type=checkbox]");
     checkboxes.forEach(async cb=>{
         const id = cb.dataset.id;
-        await fetch(`${API}/id/${id}`, {method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify({data:{presente:cb.checked?"Sim":"Não"}})});
+        await fetch(`${API}/id/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{presente:cb.checked?"Sim":"Não"}})});
     });
     alert("Presenças salvas!");
     carregarDados();
 }
 
-// RELATÓRIOS
+// Relatórios
 function gerarRelatorio(){
     const turma = document.getElementById("relatorioTurma").value;
     const lista = catequizandos.filter(c=>c.turma===turma);
@@ -293,18 +292,29 @@ function gerarRelatorio(){
     document.getElementById("relatorioContainer").innerHTML = html;
 }
 
-// EXPORTAR PDF
+// Exportar PDF/Excel
 function exportarPDF(){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.html(document.getElementById("relatorioContainer"), {callback:function(pdf){ pdf.save("relatorio.pdf"); }});
 }
-
-// EXPORTAR EXCEL
 function exportarExcel(){
     const table = document.querySelector("#relatorioContainer table");
-    const wb = XLSX.utils.table_to_book(table, {sheet:"Relatório"});
+    const wb = XLSX.utils.table_to_book(table,{sheet:"Relatório"});
     XLSX.writeFile(wb,"relatorio.xlsx");
+}
+
+// Gráfico
+function atualizarGrafico(){
+    const labels = turmas.map(t=>t.nome);
+    const dataPresenca = turmas.map(t=>{
+        const lista = catequizandos.filter(c=>c.turma===t.nome);
+        const presentes = lista.filter(c=>c.presente==="Sim").length;
+        return presentes;
+    });
+    if(grafico) grafico.destroy();
+    const ctx = document.getElementById("graficoPresenca").getContext("2d");
+    grafico = new Chart(ctx, { type:'bar', data:{labels, datasets:[{label:'Presenças', data:dataPresenca, backgroundColor:'#4CAF50'}]}, options:{responsive:true, plugins:{legend:{display:false}}} });
 }
 </script>
 
