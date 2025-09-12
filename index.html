@@ -3,35 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema de Catequese</title>
+<title>Painel de Catequese</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4;}
-    header { background:#4CAF50; color:#fff; padding:15px 20px; text-align:center; }
-    h1 { margin:0; }
-    .container { padding:20px; max-width:1200px; margin:auto; }
-    button { cursor:pointer; padding:8px 12px; border:none; border-radius:4px; background:#4CAF50; color:#fff; margin:2px; transition:0.3s;}
-    button:hover { background:#45a049; }
-    table { width:100%; border-collapse:collapse; margin:10px 0; box-shadow:0 0 5px rgba(0,0,0,0.1);}
-    th, td { border:1px solid #ddd; padding:8px; text-align:left; }
-    th { background:#4CAF50; color:white; position: sticky; top:0; }
-    select, input, textarea { padding:6px; margin:4px 0; width:100%; box-sizing:border-box; border-radius:4px; border:1px solid #ccc; }
-    .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.5); transition:0.3s;}
-    .modal-content { background:#fff; margin:5% auto; padding:20px; border-radius:10px; width:90%; max-width:600px; box-shadow:0 0 15px rgba(0,0,0,0.3); animation:fadeIn 0.3s;}
-    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-    .close { color:#aaa; float:right; font-size:28px; font-weight:bold; }
-    .close:hover { color:#000; cursor:pointer; }
-    .cards { display:flex; flex-wrap:wrap; gap:15px; margin-bottom:20px; }
-    .card { flex:1 1 200px; background:#fff; padding:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1); text-align:center; }
-    .card i { font-size:30px; margin-bottom:10px; color:#4CAF50; }
-    @media(max-width:768px){ table, th, td { font-size:12px; } .cards { flex-direction:column; } }
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f0f2f5; }
+header { background:#4CAF50; color:#fff; padding:15px 20px; text-align:center; }
+h1 { margin:0; }
+.container { padding:20px; max-width:1200px; margin:auto; }
+button { cursor:pointer; padding:8px 12px; border:none; border-radius:5px; background:#4CAF50; color:#fff; margin:2px; transition:0.3s;}
+button:hover { background:#45a049; }
+table { width:100%; border-collapse:collapse; margin:10px 0; box-shadow:0 0 5px rgba(0,0,0,0.1);}
+th, td { border:1px solid #ddd; padding:8px; text-align:left; }
+th { background:#4CAF50; color:white; position: sticky; top:0; }
+tr:nth-child(even) { background:#f9f9f9; }
+tr:hover { background:#f1f1f1; }
+select, input, textarea { padding:6px; margin:4px 0; width:100%; box-sizing:border-box; border-radius:4px; border:1px solid #ccc; }
+.modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.5);}
+.modal-content { background:#fff; margin:5% auto; padding:20px; border-radius:12px; width:90%; max-width:600px; box-shadow:0 0 20px rgba(0,0,0,0.3); animation:fadeIn 0.3s;}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.close { color:#aaa; float:right; font-size:28px; font-weight:bold; }
+.close:hover { color:#000; cursor:pointer; }
+.cards { display:flex; flex-wrap:wrap; gap:15px; margin-bottom:20px; }
+.card { flex:1 1 200px; background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center; transition:0.3s; }
+.card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.15); }
+.card i { font-size:35px; margin-bottom:10px; }
+.presente { color:green; font-weight:bold; }
+.ausente { color:red; font-weight:bold; }
+@media(max-width:768px){ table, th, td { font-size:12px; } .cards { flex-direction:column; } }
 </style>
 </head>
 <body>
 
 <header>
-    <h1>Sistema de Catequese</h1>
+    <h1>Painel de Catequese</h1>
 </header>
 
 <div class="container">
@@ -87,7 +92,7 @@
     <textarea id="observacao" placeholder="Observação"></textarea>
     <button onclick="cadastrarCatequizando()">Cadastrar Catequizando</button>
     <table id="tabelaCatequizandos">
-        <thead><tr><th>Nome</th><th>Idade</th><th>Turma</th><th>Responsável</th><th>Contato</th><th>Observação</th><th>Ações</th></tr></thead>
+        <thead><tr><th>Nome</th><th>Idade</th><th>Turma</th><th>Responsável</th><th>Contato</th><th>Observação</th><th>Ritos</th><th>Presença</th><th>Ações</th></tr></thead>
         <tbody></tbody>
     </table>
 
@@ -169,6 +174,8 @@ function preencherTabelas(){
     turmas.forEach(t=>tabelaTurmas.innerHTML += `<tr><td>${t.nome}</td><td><button onclick="excluirTurma('${t.id}')">Excluir</button></td></tr>`);
     ritos.forEach(r=>tabelaRitos.innerHTML += `<tr><td>${r.nome}</td><td>${r.turma}</td><td><button onclick="excluirRito('${r.id}')">Excluir</button></td></tr>`);
     catequizandos.forEach(c=>{
+        const ritosCate = ritos.filter(r=>r.turma===c.turma).map(r=>r.nome).join(", ");
+        const presenca = c.presente==="Sim"?'<span class="presente">Presente</span>':'<span class="ausente">Ausente</span>';
         tabelaCate.innerHTML += `<tr>
             <td>${c.nome}</td>
             <td>${calcularIdade(c.data)}</td>
@@ -176,7 +183,9 @@ function preencherTabelas(){
             <td>${c.responsavel}</td>
             <td>${c.contato}</td>
             <td>${c.observacao}</td>
-            <td><button onclick="abrirModal('${c.id}')">Editar</button></td>
+            <td>${ritosCate}</td>
+            <td>${presenca}</td>
+            <td><button onclick="abrirModal('${c.id}')"><i class="fas fa-edit"></i></button></td>
         </tr>`;
     });
 
@@ -199,6 +208,7 @@ function atualizarTabelaPresenca(){
 }
 document.getElementById("turmaPresenca").addEventListener("change", atualizarTabelaPresenca);
 
+// Funções de cadastro, edição, exclusão e presença
 async function cadastrarTurma(){
     const nome = document.getElementById("nomeTurma").value;
     if(!nome) return alert("Informe o nome da turma");
@@ -206,7 +216,6 @@ async function cadastrarTurma(){
     document.getElementById("nomeTurma").value="";
     carregarDados();
 }
-
 async function cadastrarRito(){
     const nome = document.getElementById("nomeRito").value;
     const turma = document.getElementById("ritoTurma").value;
@@ -215,7 +224,6 @@ async function cadastrarRito(){
     document.getElementById("nomeRito").value="";
     carregarDados();
 }
-
 async function cadastrarCatequizando(){
     const nome = document.getElementById("nomeCatequizando").value;
     const responsavel = document.getElementById("responsavel").value;
@@ -234,7 +242,7 @@ async function cadastrarCatequizando(){
     carregarDados();
 }
 
-// Modal e edição
+// Modal
 function abrirModal(id){
     const c = catequizandos.find(x=>x.id===id);
     document.getElementById("idEditar").value = c.id;
@@ -266,10 +274,10 @@ async function excluirRito(id){ await fetch(`${API}/id/${id}`,{method:"DELETE"})
 // Presença
 async function salvarPresenca(){
     const checkboxes = document.querySelectorAll("#tabelaPresenca input[type=checkbox]");
-    checkboxes.forEach(async cb=>{
+    for(const cb of checkboxes){
         const id = cb.dataset.id;
         await fetch(`${API}/id/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{presente:cb.checked?"Sim":"Não"}})});
-    });
+    }
     alert("Presenças salvas!");
     carregarDados();
 }
@@ -280,43 +288,34 @@ function gerarRelatorio(){
     const lista = catequizandos.filter(c=>c.turma===turma);
     let html = `<h3>Relatório da Turma: ${turma}</h3><table border="1"><tr><th>Nome</th><th>Idade</th><th>Ritos</th><th>Presença</th></tr>`;
     lista.forEach(c=>{
-        const ritosCate = ritos.filter(r=>r.turma===turma).map(r=>r.nome).join(", ");
-        html += `<tr>
-            <td>${c.nome}</td>
-            <td>${calcularIdade(c.data)}</td>
-            <td>${ritosCate}</td>
-            <td>${c.presente || ""}</td>
-        </tr>`;
+        const ritosCate = ritos.filter(r=>r.turma===c.turma).map(r=>r.nome).join(", ");
+        html += `<tr><td>${c.nome}</td><td>${calcularIdade(c.data)}</td><td>${ritosCate}</td><td>${c.presente==="Sim"?"Presente":"Ausente"}</td></tr>`;
     });
     html += "</table>";
     document.getElementById("relatorioContainer").innerHTML = html;
 }
 
-// Exportar PDF/Excel
+// Exportação PDF e Excel
 function exportarPDF(){
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.html(document.getElementById("relatorioContainer"), {callback:function(pdf){ pdf.save("relatorio.pdf"); }});
+    const doc = new jspdf.jsPDF();
+    doc.text(document.getElementById("relatorioContainer").innerText,10,10);
+    doc.save("relatorio.pdf");
 }
 function exportarExcel(){
     const table = document.querySelector("#relatorioContainer table");
-    const wb = XLSX.utils.table_to_book(table,{sheet:"Relatório"});
+    const wb = XLSX.utils.table_to_book(table);
     XLSX.writeFile(wb,"relatorio.xlsx");
 }
 
 // Gráfico
 function atualizarGrafico(){
+    const ctx = document.getElementById('graficoPresenca').getContext('2d');
     const labels = turmas.map(t=>t.nome);
-    const dataPresenca = turmas.map(t=>{
-        const lista = catequizandos.filter(c=>c.turma===t.nome);
-        const presentes = lista.filter(c=>c.presente==="Sim").length;
-        return presentes;
-    });
+    const data = turmas.map(t=>catequizandos.filter(c=>c.turma===t.nome && c.presente==="Sim").length);
     if(grafico) grafico.destroy();
-    const ctx = document.getElementById("graficoPresenca").getContext("2d");
-    grafico = new Chart(ctx, { type:'bar', data:{labels, datasets:[{label:'Presenças', data:dataPresenca, backgroundColor:'#4CAF50'}]}, options:{responsive:true, plugins:{legend:{display:false}}} });
+    grafico = new Chart(ctx,{type:'bar',data:{labels, datasets:[{label:'Presentes',data, backgroundColor:'green'}]},options:{responsive:true}});
 }
-</script>
 
+</script>
 </body>
 </html>
