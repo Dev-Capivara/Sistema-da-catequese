@@ -2,470 +2,794 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Sistema de Catequese — Completo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sagrado Coração — Sistema de Catequese</title>
 
-  <!-- Bootstrap (modal, grid, utilidades) -->
+  <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root{
-      --primary:#2f9e44;
-      --primary-dark:#1f6f2b;
-      --muted:#6c757d;
-      --bg:#f5f7fb;
-      --card:#ffffff;
+      --scj-red-600: #b71c1c;
+      --scj-red-800: #7f0f0f;
+      --bg: #fbfbfb;
+      --muted: #6b6b6b;
+      --card: #fff;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:var(--bg);color:#222}
-    /* Sidebar */
-    .sidebar{
-      width:240px;position:fixed;left:0;top:0;bottom:0;background:var(--primary);color:#fff;padding:18px;transition:transform .25s;
+    body{font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; background:var(--bg); margin:0; color:#222}
+    /* top navbar */
+    .topbar {
+      background: linear-gradient(90deg,var(--scj-red-600),var(--scj-red-800));
+      color: #fff;
+      padding: 10px 12px;
+      position: sticky;
+      top:0;
+      z-index: 1050;
     }
-    .sidebar .title{font-weight:700;font-size:20px;margin-bottom:14px}
-    .nav-link{color:#fff;display:block;padding:10px;border-radius:8px;text-decoration:none;margin-bottom:6px}
-    .nav-link:hover,.nav-link.active{background:var(--primary-dark)}
-    /* Content */
-    .wrap{margin-left:260px;padding:20px;transition:margin .25s}
-    .card-box{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06);margin-bottom:16px}
-    .small-muted{color:var(--muted);font-size:13px}
-    .table-card{background:var(--card);padding:12px;border-radius:8px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
-    .search-input{max-width:360px}
-    .hamburger{display:none;cursor:pointer;margin-right:8px;font-size:20px}
-    /* Responsive adjustments */
-    @media(max-width:900px){
-      .sidebar{transform:translateX(-280px);z-index:1200}
-      .sidebar.open{transform:translateX(0)}
-      .wrap{margin-left:0;padding:14px}
-      .hamburger{display:inline-block}
-      .desktop-table{display:none}
-      .mobile-cards{display:block}
+    .topbar .brand { font-weight:800; letter-spacing:0.2px; }
+    .nav-tabs .nav-link.active { background: transparent; border: none; color: #fff; font-weight:700; }
+    .nav-tabs .nav-link { color: rgba(255,255,255,0.9); }
+    /* container */
+    .app-container { max-width:1100px; margin:18px auto; padding:0 12px; }
+    .card-surface { background:var(--card); border-radius:10px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,0.06); margin-bottom:14px; border-left:6px solid var(--scj-red-600); }
+    .cards-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:12px; margin-bottom:14px; }
+    .card-surface h3{ margin:0; font-size:20px; }
+    .muted{ color:var(--muted); font-size:13px; }
+    .table-card{ background:var(--card); padding:10px; border-radius:8px; margin-bottom:10px }
+    /* responsive helpers */
+    @media (max-width:900px){
+      .nav-tabs { overflow:auto; -webkit-overflow-scrolling:touch; }
+      .nav-item { flex:0 0 auto; }
+      .card-surface { padding:12px; }
+      table { font-size:13px; }
     }
-    @media(min-width:901px){
-      .mobile-cards{display:none}
-    }
-    /* small helpers */
-    .muted{color:var(--muted)}
-    .btn-sm-ghost{border:1px solid #ddd;background:#fff;color:#333}
+    /* small */
+    .tiny{ font-size:12px; color:var(--muted); }
+    .btn-red{ background:var(--scj-red-600); border-color:var(--scj-red-600); color:#fff; }
+    .btn-red-outline{ color:var(--scj-red-600); border-color:var(--scj-red-600); background:transparent; }
   </style>
 </head>
 <body>
-  <!-- SIDEBAR -->
-  <div class="sidebar" id="sidebar">
-    <div class="title">✝️ Catequese</div>
-    <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
-    <a href="#" class="nav-link" data-page="turmas">Turmas</a>
-    <a href="#" class="nav-link" data-page="catequizandos">Catequizandos</a>
-    <a href="#" class="nav-link" data-page="presencas">Presenças</a>
-    <a href="#" class="nav-link" data-page="ritos">Ritos</a>
-    <div style="height:18px"></div>
-    <div class="small-muted">Conectado: SheetDB</div>
-  </div>
 
-  <!-- MAIN WRAP -->
-  <div class="wrap">
-    <div class="d-flex align-items-center mb-3">
-      <span class="hamburger me-2" id="hambBtn">☰</span>
-      <h4 id="pageTitle" style="margin:0">Dashboard</h4>
-      <div class="ms-auto muted" id="apiInfo">API: sheetdb.io</div>
+  <!-- TOPBAR / NAV -->
+  <header class="topbar d-flex align-items-center">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center gap-3">
+        <div class="brand d-flex align-items-center gap-3">
+          <div style="width:44px;height:44px;border-radius:8px;background:#fff;color:var(--scj-red-600);display:flex;align-items:center;justify-content:center;font-weight:700">SCJ</div>
+          <div>
+            <div style="font-weight:800">Paróquia — Sagrado Coração</div>
+            <div class="tiny">Sistema de Catequese</div>
+          </div>
+        </div>
+
+        <!-- nav tabs -->
+        <ul class="nav nav-tabs ms-auto" id="mainTabs" role="tablist" style="border-bottom:0;">
+          <li class="nav-item" role="presentation"><a class="nav-link active" data-page="dashboard" href="#" aria-current="true"><i class="fa-solid fa-gauge-high me-1"></i> Dashboard</a></li>
+          <li class="nav-item" role="presentation"><a class="nav-link" data-page="turmas" href="#"><i class="fa-solid fa-users-gear me-1"></i> Turmas</a></li>
+          <li class="nav-item" role="presentation"><a class="nav-link" data-page="catequizandos" href="#"><i class="fa-solid fa-user-graduate me-1"></i> Catequizandos</a></li>
+          <li class="nav-item" role="presentation"><a class="nav-link" data-page="presencas" href="#"><i class="fa-solid fa-check-to-slot me-1"></i> Presenças</a></li>
+          <li class="nav-item" role="presentation"><a class="nav-link" data-page="ritos" href="#"><i class="fa-solid fa-scroll me-1"></i> Ritos</a></li>
+          <li class="nav-item" role="presentation"><a class="nav-link" data-page="relatorios" href="#"><i class="fa-solid fa-file-lines me-1"></i> Relatórios</a></li>
+        </ul>
+      </div>
     </div>
+  </header>
 
-    <!-- PAGES -->
+  <!-- APP -->
+  <div class="app-container">
+
     <!-- DASHBOARD -->
-    <div id="page-dashboard" class="page">
-      <div class="row g-3 mb-3">
-        <div class="col-6 col-md-3">
-          <div class="card-box text-center">
-            <div class="small-muted">Turmas</div>
-            <h4 id="dashTurmas">0</h4>
-          </div>
+    <section id="page-dashboard" class="page">
+      <div class="cards-grid">
+        <div class="card-surface">
+          <h3 id="countTurmas">0</h3>
+          <div class="muted">Turmas cadastradas</div>
         </div>
-        <div class="col-6 col-md-3">
-          <div class="card-box text-center">
-            <div class="small-muted">Catequizandos</div>
-            <h4 id="dashCatequs">0</h4>
-          </div>
+        <div class="card-surface">
+          <h3 id="countCate">0</h3>
+          <div class="muted">Catequizandos</div>
         </div>
-        <div class="col-6 col-md-3">
-          <div class="card-box text-center">
-            <div class="small-muted">Presenças</div>
-            <h4 id="dashPres">0</h4>
-          </div>
+        <div class="card-surface">
+          <h3 id="countPres">0</h3>
+          <div class="muted">Registros de Presença</div>
         </div>
-        <div class="col-6 col-md-3">
-          <div class="card-box text-center">
-            <div class="small-muted">Ritos</div>
-            <h4 id="dashRitos">0</h4>
-          </div>
+        <div class="card-surface">
+          <h3 id="countRitos">0</h3>
+          <div class="muted">Ritos</div>
         </div>
       </div>
 
-      <div class="row g-3">
-        <div class="col-12 col-md-6">
-          <div class="card-box">
-            <h5>Presenças por Turma</h5>
-            <canvas id="chartPresencas" style="max-height:300px"></canvas>
-          </div>
+      <div class="card-surface">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="mb-0">Presenças por Turma</h5>
+          <div class="tiny muted">Última atualização: <span id="lastSync">—</span></div>
         </div>
-        <div class="col-12 col-md-6">
-          <div class="card-box">
-            <h5>Ritos por Tipo</h5>
-            <canvas id="chartRitos" style="max-height:300px"></canvas>
-          </div>
-        </div>
+        <canvas id="chartPres" style="max-height:330px"></canvas>
       </div>
-    </div>
+    </section>
 
     <!-- TURMAS -->
-    <div id="page-turmas" class="page" style="display:none">
-      <div class="d-flex align-items-center mb-2">
-        <h5 class="me-auto">Turmas</h5>
-        <input id="searchTurmas" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar turma" />
-      </div>
-
-      <div class="card-box mb-3">
-        <form id="formTurma">
-          <div class="row g-2">
-            <div class="col-md-5"><input id="turma_nome" class="form-control" placeholder="Nome da turma" required></div>
-            <div class="col-md-4"><input id="turma_catequista" class="form-control" placeholder="Catequista"></div>
-            <div class="col-md-3 d-flex gap-2">
-              <input id="turma_horario" class="form-control" placeholder="Horário">
-              <button class="btn btn-success" type="submit">Salvar</button>
-            </div>
+    <section id="page-turmas" class="page" style="display:none">
+      <div class="card-surface">
+        <h5>Adicionar / Editar Turma</h5>
+        <form id="formTurma" class="row g-2">
+          <div class="col-md-5">
+            <label class="form-label tiny">Nome</label>
+            <input id="turma_nome" class="form-control" placeholder="Ex.: Turma A">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label tiny">Catequista</label>
+            <input id="turma_catequista" class="form-control" placeholder="Nome">
+          </div>
+          <div class="col-md-3 d-flex align-items-end">
+            <input type="hidden" id="turma_id">
+            <button class="btn btn-red w-100" type="submit">Salvar Turma</button>
           </div>
         </form>
       </div>
 
-      <div id="turmasList" class="card-box">
-        <div class="table-responsive desktop-table"><table id="turmasTable" class="table table-sm mb-0"></table></div>
-        <div id="turmasMobile" class="mobile-cards"></div>
+      <div class="card-surface">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="mb-0">Lista de Turmas</h5>
+          <input id="searchTurma" class="form-control form-control-sm w-25" placeholder="Pesquisar...">
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr><th>Nome</th><th>Catequista</th><th>Horário</th><th style="width:140px">Ações</th></tr>
+            </thead>
+            <tbody id="tbodyTurmas"></tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </section>
 
     <!-- CATEQUIZANDOS -->
-    <div id="page-catequizandos" class="page" style="display:none">
-      <div class="d-flex align-items-center mb-2">
-        <h5 class="me-auto">Catequizandos</h5>
-        <input id="searchCate" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar nome ou turma" />
-      </div>
+    <section id="page-catequizandos" class="page" style="display:none">
+      <div class="card-surface">
+        <h5>Ficha de Inscrição</h5>
+        <form id="formCate" class="row g-2">
+          <div class="col-md-5">
+            <label class="form-label tiny">Nome</label>
+            <input id="cat_nome" class="form-control" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label tiny">Data de Nasc.</label>
+            <input id="cat_data_nasc" type="date" class="form-control" onchange="calcAge()" required>
+          </div>
+          <div class="col-md-1">
+            <label class="form-label tiny">Idade</label>
+            <input id="cat_idade" class="form-control" readonly>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label tiny">Turma</label>
+            <select id="cat_turma" class="form-select"></select>
+          </div>
 
-      <div class="card-box mb-3">
-        <form id="formCate">
-          <div class="row g-2">
-            <div class="col-md-5"><input id="cat_nome" class="form-control" placeholder="Nome do catequizando" required></div>
-            <div class="col-md-2"><input id="cat_data_nasc" type="date" class="form-control" onchange="calcularIdade()" required></div>
-            <div class="col-md-1"><input id="cat_idade" class="form-control" placeholder="Idade" readonly></div>
-            <div class="col-md-4"><select id="cat_turma" class="form-select"></select></div>
+          <div class="col-md-4">
+            <label class="form-label tiny">Responsável</label>
+            <input id="cat_responsavel" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label tiny">Contato</label>
+            <input id="cat_contato" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label tiny">Contato do responsável</label>
+            <input id="cat_contato_responsavel" class="form-control">
+          </div>
 
-            <div class="col-md-5"><input id="cat_responsavel" class="form-control" placeholder="Nome do responsável"></div>
-            <div class="col-md-4"><input id="cat_contato_responsavel" class="form-control" placeholder="Contato do responsável"></div>
-            <div class="col-md-3"><input id="cat_telefone_opcional" class="form-control" placeholder="Tel. opcional"></div>
+          <div class="col-12">
+            <label class="form-label tiny">Observação</label>
+            <textarea id="cat_observacao" class="form-control" rows="2"></textarea>
+          </div>
 
-            <div class="col-12"><textarea id="cat_observacao" class="form-control" rows="2" placeholder="Observações"></textarea></div>
-            <input type="hidden" id="cat_row">
-            <div class="col-12 text-end"><button class="btn btn-success mt-2" type="submit">Salvar</button></div>
+          <input type="hidden" id="cat_id">
+          <div class="col-12 text-end">
+            <button class="btn btn-red" type="submit">Salvar Catequizando</button>
           </div>
         </form>
       </div>
 
-      <div class="card-box">
-        <div class="table-responsive desktop-table"><table id="cateTable" class="table table-sm mb-0"></table></div>
-        <div id="cateMobile" class="mobile-cards"></div>
+      <div class="card-surface">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="mb-0">Lista de Catequizandos</h5>
+          <input id="searchCate" class="form-control form-control-sm w-25" placeholder="Pesquisar nome/ou turma...">
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead><tr><th>Nome</th><th>Idade</th><th>Turma</th><th>Contato</th><th>Responsável</th><th>Obs</th><th>Ações</th></tr></thead>
+            <tbody id="tbodyCate"></tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </section>
 
     <!-- PRESENCAS -->
-    <div id="page-presencas" class="page" style="display:none">
-      <div class="d-flex align-items-center mb-2">
-        <h5 class="me-auto">Presenças</h5>
-        <input id="searchPres" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar por turma / data" />
-      </div>
-
-      <div class="card-box mb-3">
-        <form id="formPres">
-          <div class="row g-2 align-items-center">
-            <div class="col-md-4"><select id="pres_turma" class="form-select" required></select></div>
-            <div class="col-md-4"><select id="pres_catequizando" class="form-select" required></select></div>
-            <div class="col-md-2"><input id="pres_data" type="date" class="form-control" required></div>
-            <div class="col-md-2 d-flex gap-2"><select id="pres_status" class="form-select"><option>Presente</option><option>Faltou</option></select><button class="btn btn-success" type="submit">Salvar</button></div>
+    <section id="page-presencas" class="page" style="display:none">
+      <div class="card-surface">
+        <h5>Registrar Presenças</h5>
+        <div class="row g-2">
+          <div class="col-md-4">
+            <label class="form-label tiny">Turma</label>
+            <select id="pres_turma" class="form-select" onchange="loadAttendanceList()"></select>
           </div>
-        </form>
+          <div class="col-md-3">
+            <label class="form-label tiny">Data</label>
+            <input id="pres_data" type="date" class="form-control" value="">
+          </div>
+          <div class="col-md-5 d-flex align-items-end">
+            <button class="btn btn-red ms-auto" onclick="savePresences()">Salvar Presenças</button>
+          </div>
+        </div>
       </div>
 
-      <div class="card-box">
-        <div class="table-responsive desktop-table"><table id="presTable" class="table table-sm mb-0"></table></div>
-        <div id="presMobile" class="mobile-cards"></div>
+      <div class="card-surface">
+        <h5 class="mb-0">Lista (marque quem compareceu)</h5>
+        <div id="attendanceList" class="mt-2"></div>
       </div>
-    </div>
+    </section>
 
     <!-- RITOS -->
-    <div id="page-ritos" class="page" style="display:none">
-      <div class="d-flex align-items-center mb-2">
-        <h5 class="me-auto">Ritos</h5>
-        <input id="searchRitos" class="form-control form-control-sm search-input ms-2" placeholder="Pesquisar rito / catequizando" />
-      </div>
-
-      <div class="card-box mb-3">
-        <form id="formRito">
-          <div class="row g-2">
-            <div class="col-md-4"><select id="rito_turma" class="form-select" onchange="loadCatequizandoSelectForRito()"></select></div>
-            <div class="col-md-5"><select id="rito_catequizando" class="form-select"></select></div>
-            <div class="col-md-2"><input id="rito_tipo" class="form-control" placeholder="Tipo de rito"></div>
-            <div class="col-md-1"><input id="rito_data" type="date" class="form-control"></div>
+    <section id="page-ritos" class="page" style="display:none">
+      <div class="card-surface">
+        <h5>Registrar Rito</h5>
+        <form id="formRito" class="row g-2">
+          <div class="col-md-4">
+            <label class="form-label tiny">Turma</label>
+            <select id="rito_turma" class="form-select" onchange="loadCateForRito()"></select>
           </div>
-          <input type="hidden" id="rito_row">
-          <div class="text-end mt-2"><button class="btn btn-success" type="submit">Salvar</button></div>
+          <div class="col-md-5">
+            <label class="form-label tiny">Catequizando</label>
+            <select id="rito_catequizando" class="form-select"></select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label tiny">Tipo de Rito</label>
+            <input id="rito_tipo" class="form-control" placeholder="Ex.: Primeira Eucaristia">
+          </div>
+          <div class="col-md-1 d-flex align-items-end">
+            <button class="btn btn-red w-100" type="submit">Salvar</button>
+          </div>
         </form>
       </div>
 
-      <div class="card-box">
-        <div class="table-responsive desktop-table"><table id="ritoTable" class="table table-sm mb-0"></table></div>
-        <div id="ritoMobile" class="mobile-cards"></div>
+      <div class="card-surface">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="mb-0">Ritos registrados</h5>
+          <input id="searchRito" class="form-control form-control-sm w-25" placeholder="Pesquisar...">
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead><tr><th>Data</th><th>Turma</th><th>Catequizando</th><th>Tipo</th><th>Ações</th></tr></thead>
+            <tbody id="tbodyRitos"></tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- EDIT MODAL (reused for multiple types) -->
-  <div class="modal fade" id="editModal" tabindex="-1">
+    <!-- RELATORIOS -->
+    <section id="page-relatorios" class="page" style="display:none">
+      <div class="card-surface">
+        <h5>Relatórios</h5>
+        <div class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label tiny">Turma</label>
+            <select id="rel_turma" class="form-select"></select>
+          </div>
+          <div class="col-md-7 d-flex gap-2">
+            <button class="btn btn-red" onclick="generateReport()">Visualizar</button>
+            <button class="btn btn-outline-secondary" onclick="exportReportPDF()">Exportar PDF</button>
+            <button class="btn btn-outline-secondary" onclick="exportReportExcel()">Exportar Excel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-surface">
+        <div id="reportArea"></div>
+      </div>
+    </section>
+
+  </div> <!-- /app-container -->
+
+  <!-- EDIT MODAL (Bootstrap) -->
+  <div class="modal fade" id="modalEditCate" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalTitle">Editar</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        <div class="modal-header" style="background:linear-gradient(90deg,var(--scj-red-600),var(--scj-red-800));color:#fff">
+          <h5 class="modal-title">Editar Catequizando</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-body">
+          <form id="formEditCate" class="row g-2">
+            <input type="hidden" id="edit_cat_id">
+            <div class="col-md-8">
+              <label class="form-label tiny">Nome</label>
+              <input id="edit_cat_nome" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label tiny">Data Nasc</label>
+              <input id="edit_cat_data_nasc" type="date" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label tiny">Turma</label>
+              <select id="edit_cat_turma" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label tiny">Responsável</label>
+              <input id="edit_cat_responsavel" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label tiny">Contato</label>
+              <input id="edit_cat_contato" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label tiny">Contato do responsável</label>
+              <input id="edit_cat_contato_responsavel" class="form-control">
+            </div>
+            <div class="col-12">
+              <label class="form-label tiny">Observação</label>
+              <textarea id="edit_cat_observacao" class="form-control" rows="2"></textarea>
+            </div>
+          </form>
+        </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-          <button id="modalSaveBtn" type="button" class="btn btn-primary">Salvar</button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          <button id="btnSaveEditCate" class="btn btn-red">Salvar</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Bootstrap bundle (modal) -->
+  <!-- LIBS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<script>
-/* ---------- CONFIG ---------- */
-const API_URL = "https://sheetdb.io/api/v1/a7deww2pd3giv";
-const state = { turmas:[], cate:[], pres:[], ritos:[] };
-const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-let chartPres = null, chartRitos = null;
+  <script>
+  // ---------------- CONFIG ----------------
+  const API_URL = "https://sheetdb.io/api/v1/a7deww2pd3giv";
+  // State
+  let state = { turmas:[], cate:[], pres:[], ritos:[] };
+  let chartPres = null;
+  const bsModalEditCate = new bootstrap.Modal(document.getElementById('modalEditCate'));
 
-/* ---------- UI utils ---------- */
-function q(sel, ctx=document) { return ctx.querySelector(sel); }
-function qa(sel, ctx=document) { return Array.from(ctx.querySelectorAll(sel)); }
-function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
-function setActiveNav(page){ qa('.nav-link').forEach(a=>a.classList.remove('active')); qa(`.nav-link[data-page="${page}"]`).forEach(a=>a.classList.add('active')); }
+  // helper
+  const $ = id => document.getElementById(id);
+  const qAll = sel => Array.from(document.querySelectorAll(sel));
 
-/* Sidebar & page switching */
-qa('.nav-link').forEach(a=>{
-  a.addEventListener('click', e=>{
-    e.preventDefault();
-    const page = a.dataset.page;
-    openPage(page);
-    if(window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
-  });
-});
-document.getElementById('hambBtn').addEventListener('click', toggleSidebar);
-function openPage(page){
-  setActiveNav(page);
-  q('#pageTitle').innerText = page.charAt(0).toUpperCase() + page.slice(1);
-  qa('.page').forEach(p=>p.style.display='none');
-  q(`#page-${page}`).style.display='block';
-  // render current
-  if(page==='turmas') renderTurmas();
-  if(page==='catequizandos') renderCatequizandos();
-  if(page==='presencas') renderPresencas();
-  if(page==='ritos') renderRitos();
-}
-
-/* ---------- API helpers ---------- */
-async function apiGet(sheet){
-  const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`);
-  if(!res.ok) return [];
-  return res.json();
-}
-async function apiPost(sheet, payload){
-  return fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`,{
-    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data: payload})
-  });
-}
-async function apiPut(row, sheet, payload){
-  return fetch(`${API_URL}/${row}?sheet=${encodeURIComponent(sheet)}`, {
-    method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data: payload})
-  });
-}
-async function apiDelete(row, sheet){
-  return fetch(`${API_URL}/${row}?sheet=${encodeURIComponent(sheet)}`, { method:'DELETE' });
-}
-
-/* ---------- Load all data ---------- */
-async function loadAll(){
-  // fetch sheets in parallel
-  const [turmas, cate, pres, ritos] = await Promise.all([
-    apiGet('Turmas'), apiGet('Catequizandos'), apiGet('Presencas'), apiGet('Ritos')
-  ]);
-  state.turmas = turmas || [];
-  state.cate = cate || [];
-  state.pres = pres || [];
-  state.ritos = ritos || [];
-  renderDashboard(); fillSelects(); renderTurmas(); renderCatequizandos(); renderPresencas(); renderRitos();
-}
-
-/* ---------- Dashboard & charts ---------- */
-function renderDashboard(){
-  q('#dashTurmas').innerText = state.turmas.length;
-  q('#dashCatequs').innerText = state.cate.length;
-  q('#dashPres').innerText = state.pres.length;
-  q('#dashRitos').innerText = state.ritos.length;
-  renderChartPresencas();
-  renderChartRitos();
-}
-function renderChartPresencas(){
-  // count presences per turma (status=Presente)
-  const presentCounts = {};
-  state.pres.forEach(p=>{
-    if((p.status||'').toLowerCase().includes('pres')) presentCounts[p.turma] = (presentCounts[p.turma]||0) + 1;
-  });
-  const labels = Object.keys(presentCounts);
-  const data = labels.map(l=>presentCounts[l]);
-  const ctx = q('#chartPresencas').getContext('2d');
-  if(chartPres) chartPres.destroy();
-  chartPres = new Chart(ctx, {
-    type:'bar',
-    data:{ labels, datasets:[{label:'Presenças (Presentes)', data, backgroundColor: 'rgba(47,158,68,0.8)'}] },
-    options:{ responsive:true, plugins:{legend:{display:false}} }
-  });
-}
-function renderChartRitos(){
-  const counts = {};
-  state.ritos.forEach(r=>{ counts[r.tipo] = (counts[r.tipo]||0) + 1; });
-  const labels = Object.keys(counts);
-  const data = labels.map(l=>counts[l]);
-  const ctx = q('#chartRitos').getContext('2d');
-  if(chartRitos) chartRitos.destroy();
-  chartRitos = new Chart(ctx, {
-    type:'pie',
-    data:{ labels, datasets:[{data, backgroundColor: labels.map((_,i)=>`hsl(${i*60%360} 70% 50%)`)}] },
-    options:{ responsive:true }
-  });
-}
-
-/* ---------- Fill selects ---------- */
-function fillSelects(){
-  const opts = state.turmas.map(t=>`<option value="${t.nome}">${t.nome}</option>`).join('');
-  qa('#cat_turma, #pres_turma, #rito_turma').forEach(s=>{ if(s) s.innerHTML = opts; });
-  loadCatequizandoSelectForPresence();
-  loadCatequizandoSelectForRito();
-}
-
-/* ---------- Turmas CRUD + render ---------- */
-q('#formTurma')?.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const nome = q('#turma_nome').value.trim();
-  const catequista = q('#turma_catequista').value.trim();
-  const horario = q('#turma_horario').value.trim();
-  if(!nome) return alert('Nome da turma obrigatório');
-  await apiPost('Turmas', { nome, catequista, horario });
-  q('#turma_nome').value=''; q('#turma_catequista').value=''; q('#turma_horario').value='';
-  await loadAll();
-});
-function renderTurmas(){
-  const qv = (q('#searchTurmas')?.value||'').toLowerCase();
-  const rows = state.turmas.filter(t=>(t.nome||'').toLowerCase().includes(qv) || (t.catequista||'').toLowerCase().includes(qv));
-  // desktop table
-  let html = `<thead><tr><th>Nome</th><th>Catequista</th><th>Horário</th><th>Ações</th></tr></thead><tbody>`;
-  rows.forEach(t=>{
-    html += `<tr>
-      <td>${t.nome||''}</td>
-      <td>${t.catequista||''}</td>
-      <td>${t.horario||''}</td>
-      <td>
-        <button class="btn btn-sm btn-outline-primary" data-row="${t.row}" data-type="turma-edit">Editar</button>
-        <button class="btn btn-sm btn-outline-danger" data-row="${t.row}" data-type="turma-del">Excluir</button>
-      </td>
-    </tr>`;
-  });
-  html += `</tbody>`;
-  q('#turmasTable').innerHTML = html;
-  // mobile cards
-  q('#turmasMobile').innerHTML = rows.map(t=>`
-    <div class="table-card">
-      <div><strong>${t.nome||''}</strong></div>
-      <div class="small-muted">${t.catequista||''} • ${t.horario||''}</div>
-      <div class="mt-2">
-        <button class="btn btn-sm btn-outline-primary" data-row="${t.row}" data-type="turma-edit">Editar</button>
-        <button class="btn btn-sm btn-outline-danger" data-row="${t.row}" data-type="turma-del">Excluir</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-/* ---------- Catequizandos CRUD + render ---------- */
-q('#formCate')?.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  await saveCatequizando();
-});
-async function saveCatequizando(){
-  const nome = q('#cat_nome').value.trim();
-  const data_nasc = q('#cat_data_nasc').value;
-  const idade = q('#cat_idade').value;
-  const turma = q('#cat_turma').value;
-  const responsavel = q('#cat_responsavel').value.trim();
-  const contato_responsavel = q('#cat_contato_responsavel').value.trim();
-  const observacao = q('#cat_observacao').value.trim();
-  const row = q('#cat_row').value;
-  if(!nome) return alert('Nome é obrigatório');
-  const payload = { nome, data_nasc, idade, turma, responsavel, contato_responsavel, observacao };
-  if(row){
-    await apiPut(row, 'Catequizandos', payload);
-  } else {
-    await apiPost('Catequizandos', payload);
+  // ---------------- UTIL: API ----------------
+  async function apiGet(sheet){
+    try {
+      const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`);
+      if(!res.ok) return [];
+      return await res.json();
+    } catch(e){ console.error(e); return []; }
   }
-  // clear
-  ['#cat_nome','#cat_data_nasc','#cat_idade','#cat_turma','#cat_responsavel','#cat_contato_responsavel','#cat_observacao','#cat_row'].forEach(id=>{ if(q(id)) q(id).value=''; });
-  await loadAll();
-}
-function renderCatequizandos(){
-  const qv = (q('#searchCate')?.value||'').toLowerCase();
-  const rows = state.cate.filter(c=> (c.nome||'').toLowerCase().includes(qv) || (c.turma||'').toLowerCase().includes(qv) );
-  let html = `<thead><tr><th>Nome</th><th>Turma</th><th>Idade</th><th>Responsável</th><th>Ações</th></tr></thead><tbody>`;
-  rows.forEach(c=>{
-    html += `<tr>
-      <td>${c.nome||''}</td>
-      <td>${c.turma||''}</td>
-      <td>${c.idade||''}</td>
-      <td>${c.responsavel||''}</td>
-      <td>
-        <button class="btn btn-sm btn-outline-primary" data-row="${c.row}" data-type="cate-edit">Editar</button>
-        <button class="btn btn-sm btn-outline-danger" data-row="${c.row}" data-type="cate-del">Excluir</button>
-      </td>
-    </tr>`;
-  });
-  html += `</tbody>`;
-  q('#cateTable').innerHTML = html;
-  // mobile cards
-  q('#cateMobile').innerHTML = rows.map(c=>`
-    <div class="table-card">
-      <div><strong>${c.nome||''}</strong> <span class="small-muted">(${c.turma||''})</span></div>
-      <div>${c.idade||''} anos • ${c.responsavel||''}</div>
-      <div class="mt-2">
-        <button class="btn btn-sm btn-outline-primary" data-row="${c.row}" data-type="cate-edit">Editar</button>
-        <button class="btn btn-sm btn-outline-danger" data-row="${c.row}" data-type="cate-del">Excluir</button>
-      </div>
-    </div>`).join('');
-}
+  async function apiPost(sheet, data){
+    return fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data})
+    });
+  }
+  async function apiPutById(id, sheet, data){
+    // use id column for update
+    return fetch(`${API_URL}/id/${encodeURIComponent(id)}?sheet=${encodeURIComponent(sheet)}`, {
+      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data})
+    });
+  }
+  async function apiDeleteById(id, sheet){
+    return fetch(`${API_URL}/id/${encodeURIComponent(id)}?sheet=${encodeURIComponent(sheet)}`, { method:'DELETE' });
+  }
 
-/* ---------- Presenças CRUD + render ---------- */
-q('#formPres')?.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  await savePresenca();
-});
-async function loadCatequizandoSelectForPresence(){
-  const turma = q('#pres_turma')?.value;
-  if(!turma) return;
-  const opts = state.cate.filter(c=>c.turma===turma).map(c=>`<option value="${c.nome}">${c.n
+  // ---------------- LOAD ALL ----------------
+  async function loadAll(){
+    const [t,c,p,r] = await Promise.all([
+      apiGet('Turmas'), apiGet('Catequizandos'), apiGet('Presencas'), apiGet('Ritos')
+    ]);
+    state.turmas = Array.isArray(t)? t : [];
+    state.cate = Array.isArray(c)? c : [];
+    state.pres = Array.isArray(p)? p : [];
+    state.ritos = Array.isArray(r)? r : [];
+    renderAll();
+    $('lastSync').innerText = new Date().toLocaleString();
+  }
+
+  // ---------------- RENDER ALL ----------------
+  function renderAll(){
+    renderDashboard();
+    renderTurmas();
+    renderCate();
+    renderRitos();
+    fillSelects();
+  }
+
+  // ---------------- DASHBOARD ----------------
+  function renderDashboard(){
+    $('countTurmas').innerText = state.turmas.length;
+    $('countCate').innerText = state.cate.length;
+    $('countPres').innerText = state.pres.length;
+    $('countRitos').innerText = state.ritos.length;
+    renderChart();
+  }
+
+  function renderChart(){
+    const labels = state.turmas.map(t=>t.nome || '—');
+    const data = state.turmas.map(t => state.pres.filter(x => String(x.turma_id) === String(t.id) && (String(x.presente||'').toLowerCase().includes('sim') || String(x.status||'').toLowerCase().includes('sim')) ).length );
+    const ctx = document.getElementById('chartPres').getContext('2d');
+    if(chartPres) chartPres.destroy();
+    chartPres = new Chart(ctx, {
+      type:'bar', data:{ labels, datasets:[{ label:'Presentes', data, backgroundColor: '#b71c1c' }] },
+      options:{ responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+    });
+  }
+
+  // ---------------- TURMAS ----------------
+  $('formTurma').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const nome = $('turma_nome').value.trim();
+    const catequista = $('turma_catequista').value.trim();
+    const id = $('turma_id').value;
+    if(!nome) return alert('Preencha o nome da turma');
+    if(id){
+      await apiPutById(id,'Turmas',{nome,catequista});
+    } else {
+      await apiPost('Turmas',{nome,catequista});
+    }
+    $('turma_nome').value=''; $('turma_catequista').value=''; $('turma_id').value='';
+    await loadAll();
+    showPage('turmas');
+  });
+
+  function renderTurmas(){
+    const tbody = $('tbodyTurmas'); tbody.innerHTML='';
+    const q = ($('searchTurma')?.value||'').toLowerCase();
+    state.turmas.filter(t => (t.nome||'').toLowerCase().includes(q) || (t.catequista||'').toLowerCase().includes(q))
+      .forEach(t=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${t.nome||''}</td>
+                        <td>${t.catequista||''}</td>
+                        <td>${t.horario||''}</td>
+                        <td style="width:140px">
+                          <button class="btn btn-sm btn-outline-secondary me-1" onclick='startEditTurma("${t.id}")'><i class="fa-solid fa-pen"></i></button>
+                          <button class="btn btn-sm btn-red-outline" onclick='deleteTurma("${t.id}")'><i class="fa-solid fa-trash"></i></button>
+                        </td>`;
+        tbody.appendChild(tr);
+      });
+  }
+
+  function startEditTurma(id){
+    const t = state.turmas.find(x=>String(x.id) === String(id));
+    if(!t) return;
+    $('turma_nome').value = t.nome || '';
+    $('turma_catequista').value = t.catequista || '';
+    $('turma_id').value = t.id || '';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  async function deleteTurma(id){
+    if(!confirm('Excluir turma?')) return;
+    await apiDeleteById(id,'Turmas');
+    await loadAll();
+  }
+
+  $('searchTurma')?.addEventListener('input', renderTurmas);
+
+  // ---------------- CATEQUIZANDOS ----------------
+  function calcAge(){
+    const v = $('cat_data_nasc').value;
+    if(!v){ $('cat_idade').value=''; return; }
+    const nasc = new Date(v), hoje = new Date();
+    let idade = hoje.getFullYear() - nasc.getFullYear();
+    const m = hoje.getMonth() - nasc.getMonth();
+    if(m < 0 || (m===0 && hoje.getDate() < nasc.getDate())) idade--;
+    $('cat_idade').value = idade;
+  }
+  window.calcAge = calcAge;
+
+  $('formCate').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const payload = {};
+    // use column names requested:
+    payload.nome = $('cat_nome').value.trim();
+    payload.data_nasc = $('cat_data_nasc').value;
+    payload.turma_id = $('cat_turma').value || '';
+    payload.contato = $('cat_contato').value.trim();
+    payload.responsavel = $('cat_responsavel').value.trim();
+    // exact column name with space as you provided:
+    payload["Contato do responsavel"] = $('cat_contato_responsavel').value.trim();
+    payload.observacao = $('cat_observacao').value.trim();
+
+    const id = $('cat_id').value;
+    if(!payload.nome) return alert('Nome obrigatório');
+    if(id){
+      await apiPutById(id,'Catequizandos', payload);
+    } else {
+      await apiPost('Catequizandos', payload);
+    }
+    // clear
+    ['cat_nome','cat_data_nasc','cat_idade','cat_turma','cat_contato','cat_responsavel','cat_contato_responsavel','cat_observacao','cat_id']
+      .forEach(x=> { if($(x)) $(x).value=''; });
+    await loadAll();
+    showPage('catequizandos');
+  });
+
+  function renderCate(){
+    const tbody = $('tbodyCate'); tbody.innerHTML='';
+    const q = ($('searchCate')?.value||'').toLowerCase();
+    state.cate.filter(c=> (c.nome||'').toLowerCase().includes(q) || String(c.turma_id||'').toLowerCase().includes(q))
+      .forEach(c=>{
+        const turma = state.turmas.find(t => String(t.id) === String(c.turma_id));
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${c.nome||''}</td>
+                        <td>${c.data_nasc ? (new Date().getFullYear() - new Date(c.data_nasc).getFullYear()) : ''}</td>
+                        <td>${turma?turma.nome:''}</td>
+                        <td>${c.contato||''}</td>
+                        <td>${c.responsavel||''}</td>
+                        <td>${c.observacao||''}</td>
+                        <td style="width:120px">
+                          <button class="btn btn-sm btn-outline-secondary me-1" onclick='openEditCate("${c.id}")'><i class="fa-solid fa-pen"></i></button>
+                          <button class="btn btn-sm btn-red-outline" onclick='deleteCate("${c.id}")'><i class="fa-solid fa-trash"></i></button>
+                        </td>`;
+        tbody.appendChild(tr);
+      });
+  }
+
+  function openEditCate(id){
+    const c = state.cate.find(x => String(x.id) === String(id));
+    if(!c) return;
+    $('edit_cat_id').value = c.id || '';
+    $('edit_cat_nome').value = c.nome || '';
+    $('edit_cat_data_nasc').value = c.data_nasc || '';
+    $('edit_cat_turma').innerHTML = state.turmas.map(t=>`<option ${String(t.id)===String(c.turma_id)?'selected':''} value="${t.id}">${t.nome}</option>`).join('');
+    $('edit_cat_responsavel').value = c.responsavel || '';
+    $('edit_cat_contato').value = c.contato || '';
+    // note key with space:
+    $('edit_cat_contato_responsavel').value = c["Contato do responsavel"] || '';
+    $('edit_cat_observacao').value = c.observacao || '';
+    bsModalEditCate.show();
+  }
+
+  $('btnSaveEditCate').addEventListener('click', async ()=>{
+    const id = $('edit_cat_id').value;
+    if(!id) return;
+    const payload = {
+      nome: $('edit_cat_nome').value.trim(),
+      data_nasc: $('edit_cat_data_nasc').value,
+      turma_id: $('edit_cat_turma').value,
+      contato: $('edit_cat_contato').value.trim(),
+      responsavel: $('edit_cat_responsavel').value.trim(),
+      observacao: $('edit_cat_observacao').value.trim(),
+    };
+    payload["Contato do responsavel"] = $('edit_cat_contato_responsavel').value.trim();
+    await apiPutById(id,'Catequizandos', payload);
+    bsModalEditCate.hide();
+    await loadAll();
+  });
+
+  async function deleteCate(id){
+    if(!confirm('Excluir catequizando?')) return;
+    await apiDeleteById(id,'Catequizandos');
+    await loadAll();
+  }
+
+  $('searchCate')?.addEventListener('input', renderCate);
+
+  // ---------------- RITOS ----------------
+  $('formRito').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const payload = {
+      catequizando_id: $('rito_catequizando').value,
+      tipo_rito: $('rito_tipo').value.trim(),
+      data: new Date().toLocaleDateString()
+    };
+    // We also want to record turma_id for reference (optional)
+    payload.turma_id = $('rito_turma').value;
+    if(!payload.catequizando_id || !payload.tipo_rito) return alert('Preencha todos os campos do rito');
+    await apiPost('Ritos', payload);
+    $('rito_tipo').value = '';
+    await loadAll();
+    showPage('ritos');
+  });
+
+  function loadCateForRito(){
+    const turmaId = $('rito_turma').value;
+    const opts = state.cate.filter(c => String(c.turma_id) === String(turmaId)).map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+    $('rito_catequizando').innerHTML = `<option value="">Selecione</option>` + opts;
+  }
+
+  function renderRitos(){
+    const tbody = $('tbodyRitos'); tbody.innerHTML='';
+    const q = ($('searchRito')?.value||'').toLowerCase();
+    state.ritos.filter(r => (r.tipo_rito||'').toLowerCase().includes(q) || (r.catequizando_id||'').toLowerCase().includes(q))
+      .forEach(r=>{
+        const c = state.cate.find(x=>String(x.id) === String(r.catequizando_id));
+        const t = state.turmas.find(x=>String(x.id) === String(r.turma_id));
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.data||''}</td>
+                        <td>${t? t.nome : ''}</td>
+                        <td>${c? c.nome : ''}</td>
+                        <td>${r.tipo_rito||''}</td>
+                        <td style="width:140px">
+                          <button class="btn btn-sm btn-outline-secondary me-1" onclick='startEditRito("${r.id}")'><i class="fa-solid fa-pen"></i></button>
+                          <button class="btn btn-sm btn-red-outline" onclick='deleteRito("${r.id}")'><i class="fa-solid fa-trash"></i></button>
+                        </td>`;
+        tbody.appendChild(tr);
+      });
+  }
+
+  function startEditRito(id){
+    const r = state.ritos.find(x=>String(x.id) === String(id));
+    if(!r) return;
+    $('rito_turma').value = r.turma_id || '';
+    loadCateForRito();
+    setTimeout(()=> { $('rito_catequizando').value = r.catequizando_id || ''; $('rito_tipo').value = r.tipo_rito || ''; }, 120);
+  }
+
+  async function deleteRito(id){
+    if(!confirm('Excluir rito?')) return;
+    await apiDeleteById(id,'Ritos'); await loadAll();
+  }
+
+  $('searchRito')?.addEventListener('input', renderRitos);
+
+  // ---------------- PRESENCAS ----------------
+  function loadAttendanceList(){
+    const turmaId = $('pres_turma').value;
+    const list = $('attendanceList'); list.innerHTML='';
+    const cats = state.cate.filter(c => String(c.turma_id) === String(turmaId));
+    if(cats.length === 0){ list.innerHTML = '<div class="muted tiny">Nenhum catequizando nesta turma</div>'; return; }
+    cats.forEach(c=>{
+      const div = document.createElement('div'); div.className = 'd-flex align-items-center justify-content-between py-2 border-bottom';
+      const lastPres = state.pres.filter(p => String(p.catequizando_id) === String(c.id)).slice(-1)[0];
+      const checked = lastPres && (String(lastPres.presente||'').toLowerCase().includes('sim')) ? 'checked' : '';
+      div.innerHTML = `<div><strong>${c.nome}</strong><div class="tiny muted">${c.responsavel || ''}</div></div>
+                        <div class="d-flex gap-2 align-items-center">
+                          <input type="checkbox" data-cat-id="${c.id}" ${checked} />
+                          <button class="btn btn-sm btn-outline-secondary" onclick="markPresent('${c.id}', true)">Presente</button>
+                          <button class="btn btn-sm btn-outline-secondary" onclick="markPresent('${c.id}', false)">Faltou</button>
+                        </div>`;
+      list.appendChild(div);
+    });
+  }
+
+  window.markPresent = (catId, isPresent) => {
+    const cb = document.querySelector(`input[data-cat-id="${catId}"]`);
+    if(cb) cb.checked = !!isPresent;
+  };
+
+  async function savePresences(){
+    const turmaId = $('pres_turma').value;
+    const date = $('pres_data').value || new Date().toLocaleDateString();
+    const checks = Array.from(document.querySelectorAll('#attendanceList input[type="checkbox"]'));
+    if(!turmaId) return alert('Selecione a turma');
+    for(const cb of checks){
+      const catId = cb.dataset.catId;
+      const presente = cb.checked ? 'Sim' : 'Não';
+      // create a new Presencas row
+      await apiPost('Presencas', { data: date, turma_id: turmaId, catequizando_id: catId, presente, observacao: '' });
+    }
+    alert('Presenças registradas');
+    await loadAll();
+  }
+
+  // ---------------- RELATORIOS ----------------
+  function fillSelects(){
+    // populate selects with turmas
+    const opt = state.turmas.map(t => `<option value="${t.id}">${t.nome}</option>`).join('');
+    ['cat_turma','rito_turma','pres_turma','rel_turma','edit_cat_turma'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.innerHTML = `<option value="">Selecione</option>` + opt;
+    });
+    // additional small fill
+  }
+
+  function renderRitos(){ /* already defined above; keep for idempotence */ 
+    const tbody = $('tbodyRitos'); tbody.innerHTML='';
+    const q = ($('searchRito')?.value||'').toLowerCase();
+    state.ritos.filter(r => (r.tipo_rito||'').toLowerCase().includes(q) || (r.catequizando_id||'').toLowerCase().includes(q))
+      .forEach(r=>{
+        const c = state.cate.find(x=>String(x.id) === String(r.catequizando_id));
+        const t = state.turmas.find(x=>String(x.id) === String(r.turma_id));
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.data||''}</td>
+                        <td>${t? t.nome : ''}</td>
+                        <td>${c? c.nome : ''}</td>
+                        <td>${r.tipo_rito||''}</td>
+                        <td style="width:140px">
+                          <button class="btn btn-sm btn-outline-secondary me-1" onclick='startEditRito("${r.id}")'><i class="fa-solid fa-pen"></i></button>
+                          <button class="btn btn-sm btn-red-outline" onclick='deleteRito("${r.id}")'><i class="fa-solid fa-trash"></i></button>
+                        </td>`;
+        tbody.appendChild(tr);
+      });
+  }
+
+  async function generateReport(){
+    const turmaId = $('rel_turma').value;
+    if(!turmaId) return alert('Selecione a turma');
+    const turma = state.turmas.find(t=>String(t.id)===String(turmaId));
+    const cats = state.cate.filter(c=> String(c.turma_id) === String(turmaId));
+    let html = `<div><h5>Relatório — ${turma ? turma.nome : ''}</h5><p class="tiny muted">Gerado em ${new Date().toLocaleString()}</p></div>`;
+    html += `<div class="table-responsive"><table class="table"><thead><tr><th>Nome</th><th>Idade</th><th>Ritos</th><th>Última presença</th></tr></thead><tbody>`;
+    for(const c of cats){
+      const ritosList = state.ritos.filter(r=> String(r.catequizando_id) === String(c.id)).map(r=>r.tipo_rito).join(', ');
+      const lastPres = state.pres.filter(p => String(p.catequizando_id) === String(c.id)).slice(-1)[0];
+      html += `<tr><td>${c.nome}</td><td>${c.data_nasc ? (new Date().getFullYear() - new Date(c.data_nasc).getFullYear()) : ''}</td><td>${ritosList}</td><td>${lastPres ? lastPres.presente : '-'}</td></tr>`;
+    }
+    html += `</tbody></table></div>`;
+    $('reportArea').innerHTML = html;
+  }
+
+  function exportReportPDF(){
+    const { jsPDF } = window.jspdf;
+    const node = $('reportArea');
+    if(!node.innerText.trim()) return alert('Gere o relatório antes de exportar');
+    const doc = new jsPDF('p','pt','a4');
+    doc.html(node, { x:20, y:20, html2canvas:{scale:0.9}, callback: (pdf) => pdf.save('relatorio.pdf')});
+  }
+
+  function exportReportExcel(){
+    const table = $('reportArea').querySelector('table');
+    if(!table) return alert('Gere o relatório antes de exportar');
+    const wb = XLSX.utils.table_to_book(table, {sheet:"Relatório"});
+    XLSX.writeFile(wb,"relatorio.xlsx");
+  }
+
+  // ---------------- NAVIGATION ----------------
+  qAll('#mainTabs .nav-link').forEach(a => {
+    a.addEventListener('click', (e)=>{
+      e.preventDefault();
+      qAll('#mainTabs .nav-link').forEach(x=>x.classList.remove('active'));
+      a.classList.add('active');
+      const page = a.dataset.page;
+      showPage(page);
+    });
+  });
+
+  function showPage(page){
+    qAll('.page').forEach(p=>p.style.display='none');
+    const node = document.getElementById('page-' + page);
+    if(node) node.style.display = 'block';
+    // small actions
+    if(page === 'catequizandos') renderCate();
+    if(page === 'turmas') renderTurmas();
+    if(page === 'ritos') renderRitos();
+    if(page === 'presencas') loadAttendanceList();
+    if(page === 'relatorios') {
+      const sel = $('rel_turma');
+      sel.innerHTML = `<option value="">Selecione</option>` + state.turmas.map(t=>`<option value="${t.id}">${t.nome}</option>`).join('');
+    }
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  // ---------------- INIT ----------------
+  (async ()=>{
+    await loadAll();
+    showPage('dashboard');
+    // wire search inputs
+    $('searchTurma')?.addEventListener('input', renderTurmas);
+    $('searchCate')?.addEventListener('input', renderCate);
+    $('searchRito')?.addEventListener('input', renderRitos);
+  })();
+
+  // expose some functions for inline onclick use
+  window.startEditTurma = startEditTurma;
+  window.deleteTurma = deleteTurma;
+  window.openEditCate = openEditCate;
+  window.deleteCate = deleteCate;
+  window.startEditRito = startEditRito;
+  window.deleteRito = deleteRito;
+  window.loadAttendanceList = loadAttendanceList;
+  window.savePresences = savePresences;
+  window.generateReport = generateReport;
+  window.exportReportPDF = exportReportPDF;
+  window.exportReportExcel = exportReportExcel;
+  </script>
+</body>
+</html>
