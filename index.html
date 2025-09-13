@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sagrado Coração — Sistema de Catequese</title>
+  <title>Comunidade Sagrado Coração de Jesus – Paróquia São Bento</title>
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -23,67 +23,55 @@
       --card: #fff;
     }
     *{box-sizing:border-box}
-    body{font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; background:var(--bg); margin:0; color:#222}
-    /* top navbar */
+    body{font-family: Inter, system-ui, "Segoe UI", Roboto, Arial; background:var(--bg); margin:0; color:#222}
     .topbar {
       background: linear-gradient(90deg,var(--scj-red-600),var(--scj-red-800));
-      color: #fff;
-      padding: 10px 12px;
-      position: sticky;
-      top:0;
-      z-index: 1050;
+      color: #fff; padding: 10px 12px; position: sticky; top:0; z-index:1050;
     }
-    .topbar .brand { font-weight:800; letter-spacing:0.2px; }
+    .brand { font-weight:800; letter-spacing:0.2px; display:flex; gap:12px; align-items:center; }
+    .brand .logo{ width:44px;height:44px;border-radius:8px;background:#fff;color:var(--scj-red-600);display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 4px 10px rgba(0,0,0,.12)}
     .nav-tabs .nav-link.active { background: transparent; border: none; color: #fff; font-weight:700; }
-    .nav-tabs .nav-link { color: rgba(255,255,255,0.9); }
-    /* container */
+    .nav-tabs .nav-link { color: rgba(255,255,255,0.95); }
     .app-container { max-width:1100px; margin:18px auto; padding:0 12px; }
     .card-surface { background:var(--card); border-radius:10px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,0.06); margin-bottom:14px; border-left:6px solid var(--scj-red-600); }
     .cards-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:12px; margin-bottom:14px; }
-    .card-surface h3{ margin:0; font-size:20px; }
     .muted{ color:var(--muted); font-size:13px; }
+    .tiny{ font-size:12px; color:var(--muted); }
     .table-card{ background:var(--card); padding:10px; border-radius:8px; margin-bottom:10px }
-    /* responsive helpers */
+    .btn-red{ background:var(--scj-red-600); border-color:var(--scj-red-600); color:#fff; }
+    .btn-red-outline{ color:var(--scj-red-600); border-color:var(--scj-red-600); background:transparent; }
     @media (max-width:900px){
       .nav-tabs { overflow:auto; -webkit-overflow-scrolling:touch; }
       .nav-item { flex:0 0 auto; }
       .card-surface { padding:12px; }
       table { font-size:13px; }
     }
-    /* small */
-    .tiny{ font-size:12px; color:var(--muted); }
-    .btn-red{ background:var(--scj-red-600); border-color:var(--scj-red-600); color:#fff; }
-    .btn-red-outline{ color:var(--scj-red-600); border-color:var(--scj-red-600); background:transparent; }
   </style>
 </head>
 <body>
 
-  <!-- TOPBAR / NAV -->
-  <header class="topbar d-flex align-items-center">
-    <div class="container-fluid">
-      <div class="d-flex align-items-center gap-3">
-        <div class="brand d-flex align-items-center gap-3">
-          <div style="width:44px;height:44px;border-radius:8px;background:#fff;color:var(--scj-red-600);display:flex;align-items:center;justify-content:center;font-weight:700">SCJ</div>
-          <div>
-            <div style="font-weight:800">Paróquia — Sagrado Coração</div>
-            <div class="tiny">Sistema de Catequese</div>
-          </div>
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+      <div class="brand">
+        <div class="logo">SCJ</div>
+        <div>
+          <div style="font-weight:800">Comunidade Sagrado Coração de Jesus</div>
+          <div class="tiny">Paróquia São Bento — Sistema de Catequese</div>
         </div>
-
-        <!-- nav tabs -->
-        <ul class="nav nav-tabs ms-auto" id="mainTabs" role="tablist" style="border-bottom:0;">
-          <li class="nav-item" role="presentation"><a class="nav-link active" data-page="dashboard" href="#" aria-current="true"><i class="fa-solid fa-gauge-high me-1"></i> Dashboard</a></li>
-          <li class="nav-item" role="presentation"><a class="nav-link" data-page="turmas" href="#"><i class="fa-solid fa-users-gear me-1"></i> Turmas</a></li>
-          <li class="nav-item" role="presentation"><a class="nav-link" data-page="catequizandos" href="#"><i class="fa-solid fa-user-graduate me-1"></i> Catequizandos</a></li>
-          <li class="nav-item" role="presentation"><a class="nav-link" data-page="presencas" href="#"><i class="fa-solid fa-check-to-slot me-1"></i> Presenças</a></li>
-          <li class="nav-item" role="presentation"><a class="nav-link" data-page="ritos" href="#"><i class="fa-solid fa-scroll me-1"></i> Ritos</a></li>
-          <li class="nav-item" role="presentation"><a class="nav-link" data-page="relatorios" href="#"><i class="fa-solid fa-file-lines me-1"></i> Relatórios</a></li>
-        </ul>
       </div>
+
+      <ul class="nav nav-tabs" id="mainTabs" role="tablist" style="border-bottom:0; gap:8px;">
+        <li class="nav-item" role="presentation"><a class="nav-link active" data-page="dashboard" href="#"><i class="fa-solid fa-gauge-high me-1"></i>Dashboard</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" data-page="turmas" href="#"><i class="fa-solid fa-users-gear me-1"></i>Turmas</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" data-page="catequizandos" href="#"><i class="fa-solid fa-user-graduate me-1"></i>Catequizandos</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" data-page="presencas" href="#"><i class="fa-solid fa-check-to-slot me-1"></i>Presenças</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" data-page="ritos" href="#"><i class="fa-solid fa-scroll me-1"></i>Ritos</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" data-page="relatorios" href="#"><i class="fa-solid fa-file-lines me-1"></i>Relatórios</a></li>
+      </ul>
     </div>
   </header>
 
-  <!-- APP -->
   <div class="app-container">
 
     <!-- DASHBOARD -->
@@ -99,11 +87,11 @@
         </div>
         <div class="card-surface">
           <h3 id="countPres">0</h3>
-          <div class="muted">Registros de Presença</div>
+          <div class="muted">Registros de presença</div>
         </div>
         <div class="card-surface">
           <h3 id="countRitos">0</h3>
-          <div class="muted">Ritos</div>
+          <div class="muted">Ritos aplicados</div>
         </div>
       </div>
 
@@ -112,7 +100,7 @@
           <h5 class="mb-0">Presenças por Turma</h5>
           <div class="tiny muted">Última atualização: <span id="lastSync">—</span></div>
         </div>
-        <canvas id="chartPres" style="max-height:330px"></canvas>
+        <canvas id="chartPres" style="max-height:340px"></canvas>
       </div>
     </section>
 
@@ -127,7 +115,7 @@
           </div>
           <div class="col-md-4">
             <label class="form-label tiny">Catequista</label>
-            <input id="turma_catequista" class="form-control" placeholder="Nome">
+            <input id="turma_catequista" class="form-control" placeholder="Nome do catequista">
           </div>
           <div class="col-md-3 d-flex align-items-end">
             <input type="hidden" id="turma_id">
@@ -183,7 +171,7 @@
             <input id="cat_contato" class="form-control">
           </div>
           <div class="col-md-4">
-            <label class="form-label tiny">Contato do responsável</label>
+            <label class="form-label tiny">Contato do responsavel</label>
             <input id="cat_contato_responsavel" class="form-control">
           </div>
 
@@ -202,11 +190,11 @@
       <div class="card-surface">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h5 class="mb-0">Lista de Catequizandos</h5>
-          <input id="searchCate" class="form-control form-control-sm w-25" placeholder="Pesquisar nome/ou turma...">
+          <input id="searchCate" class="form-control form-control-sm w-25" placeholder="Pesquisar nome / turma...">
         </div>
         <div class="table-responsive">
           <table class="table table-sm">
-            <thead><tr><th>Nome</th><th>Idade</th><th>Turma</th><th>Contato</th><th>Responsável</th><th>Obs</th><th>Ações</th></tr></thead>
+            <thead><tr><th>Nome</th><th>Idade</th><th>Turma</th><th>Contato</th><th>Responsável</th><th>Obs</th><th style="width:120px">Ações</th></tr></thead>
             <tbody id="tbodyCate"></tbody>
           </table>
         </div>
@@ -224,7 +212,7 @@
           </div>
           <div class="col-md-3">
             <label class="form-label tiny">Data</label>
-            <input id="pres_data" type="date" class="form-control" value="">
+            <input id="pres_data" type="date" class="form-control">
           </div>
           <div class="col-md-5 d-flex align-items-end">
             <button class="btn btn-red ms-auto" onclick="savePresences()">Salvar Presenças</button>
@@ -268,7 +256,7 @@
         </div>
         <div class="table-responsive">
           <table class="table table-sm">
-            <thead><tr><th>Data</th><th>Turma</th><th>Catequizando</th><th>Tipo</th><th>Ações</th></tr></thead>
+            <thead><tr><th>Data</th><th>Turma</th><th>Catequizando</th><th>Tipo</th><th style="width:140px">Ações</th></tr></thead>
             <tbody id="tbodyRitos"></tbody>
           </table>
         </div>
@@ -331,7 +319,7 @@
               <input id="edit_cat_contato" class="form-control">
             </div>
             <div class="col-md-6">
-              <label class="form-label tiny">Contato do responsável</label>
+              <label class="form-label tiny">Contato do responsavel</label>
               <input id="edit_cat_contato_responsavel" class="form-control">
             </div>
             <div class="col-12">
@@ -354,54 +342,41 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <script>
-  // ---------------- CONFIG ----------------
+  /* ========== CONFIG ========== */
   const API_URL = "https://sheetdb.io/api/v1/a7deww2pd3giv";
-  // State
   let state = { turmas:[], cate:[], pres:[], ritos:[] };
   let chartPres = null;
   const bsModalEditCate = new bootstrap.Modal(document.getElementById('modalEditCate'));
 
-  // helper
   const $ = id => document.getElementById(id);
   const qAll = sel => Array.from(document.querySelectorAll(sel));
 
-  // ---------------- UTIL: API ----------------
+  /* ========== API HELPERS ========== */
   async function apiGet(sheet){
-    try {
-      const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`);
-      if(!res.ok) return [];
-      return await res.json();
-    } catch(e){ console.error(e); return []; }
+    try { const res = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`); if(!res.ok) return []; return await res.json(); }
+    catch(e){ console.error(e); return []; }
   }
   async function apiPost(sheet, data){
-    return fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`, {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data})
-    });
+    return fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data}) });
   }
   async function apiPutById(id, sheet, data){
-    // use id column for update
-    return fetch(`${API_URL}/id/${encodeURIComponent(id)}?sheet=${encodeURIComponent(sheet)}`, {
-      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data})
-    });
+    return fetch(`${API_URL}/id/${encodeURIComponent(id)}?sheet=${encodeURIComponent(sheet)}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({data}) });
   }
   async function apiDeleteById(id, sheet){
     return fetch(`${API_URL}/id/${encodeURIComponent(id)}?sheet=${encodeURIComponent(sheet)}`, { method:'DELETE' });
   }
 
-  // ---------------- LOAD ALL ----------------
+  /* ========== LOAD ALL ========== */
   async function loadAll(){
-    const [t,c,p,r] = await Promise.all([
-      apiGet('Turmas'), apiGet('Catequizandos'), apiGet('Presencas'), apiGet('Ritos')
-    ]);
-    state.turmas = Array.isArray(t)? t : [];
-    state.cate = Array.isArray(c)? c : [];
-    state.pres = Array.isArray(p)? p : [];
-    state.ritos = Array.isArray(r)? r : [];
+    const [t,c,p,r] = await Promise.all([ apiGet('Turmas'), apiGet('Catequizandos'), apiGet('Presencas'), apiGet('Ritos') ]);
+    state.turmas = Array.isArray(t) ? t : [];
+    state.cate = Array.isArray(c) ? c : [];
+    state.pres = Array.isArray(p) ? p : [];
+    state.ritos = Array.isArray(r) ? r : [];
     renderAll();
     $('lastSync').innerText = new Date().toLocaleString();
   }
 
-  // ---------------- RENDER ALL ----------------
   function renderAll(){
     renderDashboard();
     renderTurmas();
@@ -410,7 +385,7 @@
     fillSelects();
   }
 
-  // ---------------- DASHBOARD ----------------
+  /* ========== DASHBOARD ========== */
   function renderDashboard(){
     $('countTurmas').innerText = state.turmas.length;
     $('countCate').innerText = state.cate.length;
@@ -421,55 +396,49 @@
 
   function renderChart(){
     const labels = state.turmas.map(t=>t.nome || '—');
-    const data = state.turmas.map(t => state.pres.filter(x => String(x.turma_id) === String(t.id) && (String(x.presente||'').toLowerCase().includes('sim') || String(x.status||'').toLowerCase().includes('sim')) ).length );
+    const data = state.turmas.map(t => state.pres.filter(p => String(p.turma_id) === String(t.id) && String(p.presente||'').toLowerCase().includes('sim')).length );
     const ctx = document.getElementById('chartPres').getContext('2d');
     if(chartPres) chartPres.destroy();
     chartPres = new Chart(ctx, {
-      type:'bar', data:{ labels, datasets:[{ label:'Presentes', data, backgroundColor: '#b71c1c' }] },
+      type:'bar',
+      data:{ labels, datasets:[{ label:'Presentes', data, backgroundColor:'#b71c1c' }] },
       options:{ responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
     });
   }
 
-  // ---------------- TURMAS ----------------
-  $('formTurma').addEventListener('submit', async (e)=>{
+  /* ========== TURMAS ========== */
+  $('formTurma').addEventListener('submit', async (e) => {
     e.preventDefault();
     const nome = $('turma_nome').value.trim();
     const catequista = $('turma_catequista').value.trim();
     const id = $('turma_id').value;
     if(!nome) return alert('Preencha o nome da turma');
-    if(id){
-      await apiPutById(id,'Turmas',{nome,catequista});
-    } else {
-      await apiPost('Turmas',{nome,catequista});
-    }
+    if(id) await apiPutById(id,'Turmas',{nome,catequista});
+    else await apiPost('Turmas',{nome,catequista});
     $('turma_nome').value=''; $('turma_catequista').value=''; $('turma_id').value='';
-    await loadAll();
-    showPage('turmas');
+    await loadAll(); showPage('turmas');
   });
 
   function renderTurmas(){
     const tbody = $('tbodyTurmas'); tbody.innerHTML='';
     const q = ($('searchTurma')?.value||'').toLowerCase();
-    state.turmas.filter(t => (t.nome||'').toLowerCase().includes(q) || (t.catequista||'').toLowerCase().includes(q))
-      .forEach(t=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${t.nome||''}</td>
-                        <td>${t.catequista||''}</td>
-                        <td>${t.horario||''}</td>
-                        <td style="width:140px">
-                          <button class="btn btn-sm btn-outline-secondary me-1" onclick='startEditTurma("${t.id}")'><i class="fa-solid fa-pen"></i></button>
-                          <button class="btn btn-sm btn-red-outline" onclick='deleteTurma("${t.id}")'><i class="fa-solid fa-trash"></i></button>
-                        </td>`;
-        tbody.appendChild(tr);
-      });
+    state.turmas.filter(t => (t.nome||'').toLowerCase().includes(q) || (t.catequista||'').toLowerCase().includes(q)).forEach(t=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${t.nome||''}</td><td>${t.catequista||''}</td><td>${t.horario||''}</td>
+        <td style="width:140px">
+          <button class="btn btn-sm btn-outline-secondary me-1" onclick='startEditTurma("${t.id}")'><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-sm btn-red-outline" onclick='deleteTurma("${t.id}")'><i class="fa-solid fa-trash"></i></button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
   }
 
   function startEditTurma(id){
-    const t = state.turmas.find(x=>String(x.id) === String(id));
+    const t = state.turmas.find(x=>String(x.id)===String(id));
     if(!t) return;
-    $('turma_nome').value = t.nome || '';
-    $('turma_catequista').value = t.catequista || '';
-    $('turma_id').value = t.id || '';
+    $('turma_nome').value = t.nome||'';
+    $('turma_catequista').value = t.catequista||'';
+    $('turma_id').value = t.id||'';
     window.scrollTo({top:0, behavior:'smooth'});
   }
 
@@ -478,10 +447,9 @@
     await apiDeleteById(id,'Turmas');
     await loadAll();
   }
-
   $('searchTurma')?.addEventListener('input', renderTurmas);
 
-  // ---------------- CATEQUIZANDOS ----------------
+  /* ========== CATEQUIZANDOS ========== */
   function calcAge(){
     const v = $('cat_data_nasc').value;
     if(!v){ $('cat_idade').value=''; return; }
@@ -495,54 +463,42 @@
 
   $('formCate').addEventListener('submit', async (e)=>{
     e.preventDefault();
-    const payload = {};
-    // use column names requested:
-    payload.nome = $('cat_nome').value.trim();
-    payload.data_nasc = $('cat_data_nasc').value;
-    payload.turma_id = $('cat_turma').value || '';
-    payload.contato = $('cat_contato').value.trim();
-    payload.responsavel = $('cat_responsavel').value.trim();
-    // exact column name with space as you provided:
+    const payload = {
+      nome: $('cat_nome').value.trim(),
+      data_nasc: $('cat_data_nasc').value,
+      turma_id: $('cat_turma').value || '',
+      contato: $('cat_contato').value.trim(),
+      responsavel: $('cat_responsavel').value.trim(),
+      observacao: $('cat_observacao').value.trim()
+    };
+    // exact column name with space as you specified
     payload["Contato do responsavel"] = $('cat_contato_responsavel').value.trim();
-    payload.observacao = $('cat_observacao').value.trim();
-
     const id = $('cat_id').value;
     if(!payload.nome) return alert('Nome obrigatório');
-    if(id){
-      await apiPutById(id,'Catequizandos', payload);
-    } else {
-      await apiPost('Catequizandos', payload);
-    }
-    // clear
-    ['cat_nome','cat_data_nasc','cat_idade','cat_turma','cat_contato','cat_responsavel','cat_contato_responsavel','cat_observacao','cat_id']
-      .forEach(x=> { if($(x)) $(x).value=''; });
-    await loadAll();
-    showPage('catequizandos');
+    if(id) await apiPutById(id,'Catequizandos', payload);
+    else await apiPost('Catequizandos', payload);
+    ['cat_nome','cat_data_nasc','cat_idade','cat_turma','cat_contato','cat_responsavel','cat_contato_responsavel','cat_observacao','cat_id'].forEach(x=>{ if($(x)) $(x).value=''; });
+    await loadAll(); showPage('catequizandos');
   });
 
   function renderCate(){
     const tbody = $('tbodyCate'); tbody.innerHTML='';
     const q = ($('searchCate')?.value||'').toLowerCase();
-    state.cate.filter(c=> (c.nome||'').toLowerCase().includes(q) || String(c.turma_id||'').toLowerCase().includes(q))
-      .forEach(c=>{
-        const turma = state.turmas.find(t => String(t.id) === String(c.turma_id));
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${c.nome||''}</td>
-                        <td>${c.data_nasc ? (new Date().getFullYear() - new Date(c.data_nasc).getFullYear()) : ''}</td>
-                        <td>${turma?turma.nome:''}</td>
-                        <td>${c.contato||''}</td>
-                        <td>${c.responsavel||''}</td>
-                        <td>${c.observacao||''}</td>
-                        <td style="width:120px">
-                          <button class="btn btn-sm btn-outline-secondary me-1" onclick='openEditCate("${c.id}")'><i class="fa-solid fa-pen"></i></button>
-                          <button class="btn btn-sm btn-red-outline" onclick='deleteCate("${c.id}")'><i class="fa-solid fa-trash"></i></button>
-                        </td>`;
-        tbody.appendChild(tr);
-      });
+    state.cate.filter(c => (c.nome||'').toLowerCase().includes(q) || String(c.turma_id||'').toLowerCase().includes(q)).forEach(c=>{
+      const turma = state.turmas.find(t => String(t.id) === String(c.turma_id));
+      const tr = document.createElement('tr');
+      const idade = c.data_nasc ? (new Date().getFullYear() - new Date(c.data_nasc).getFullYear()) : '';
+      tr.innerHTML = `<td>${c.nome||''}</td><td>${idade}</td><td>${turma?turma.nome:''}</td><td>${c.contato||''}</td><td>${c.responsavel||''}</td><td>${c.observacao||''}</td>
+        <td style="width:120px">
+          <button class="btn btn-sm btn-outline-secondary me-1" onclick='openEditCate("${c.id}")'><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-sm btn-red-outline" onclick='deleteCate("${c.id}")'><i class="fa-solid fa-trash"></i></button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
   }
 
   function openEditCate(id){
-    const c = state.cate.find(x => String(x.id) === String(id));
+    const c = state.cate.find(x=>String(x.id)===String(id));
     if(!c) return;
     $('edit_cat_id').value = c.id || '';
     $('edit_cat_nome').value = c.nome || '';
@@ -550,7 +506,6 @@
     $('edit_cat_turma').innerHTML = state.turmas.map(t=>`<option ${String(t.id)===String(c.turma_id)?'selected':''} value="${t.id}">${t.nome}</option>`).join('');
     $('edit_cat_responsavel').value = c.responsavel || '';
     $('edit_cat_contato').value = c.contato || '';
-    // note key with space:
     $('edit_cat_contato_responsavel').value = c["Contato do responsavel"] || '';
     $('edit_cat_observacao').value = c.observacao || '';
     bsModalEditCate.show();
@@ -565,7 +520,7 @@
       turma_id: $('edit_cat_turma').value,
       contato: $('edit_cat_contato').value.trim(),
       responsavel: $('edit_cat_responsavel').value.trim(),
-      observacao: $('edit_cat_observacao').value.trim(),
+      observacao: $('edit_cat_observacao').value.trim()
     };
     payload["Contato do responsavel"] = $('edit_cat_contato_responsavel').value.trim();
     await apiPutById(id,'Catequizandos', payload);
@@ -581,21 +536,19 @@
 
   $('searchCate')?.addEventListener('input', renderCate);
 
-  // ---------------- RITOS ----------------
+  /* ========== RITOS ========== */
   $('formRito').addEventListener('submit', async (e)=>{
     e.preventDefault();
     const payload = {
       catequizando_id: $('rito_catequizando').value,
       tipo_rito: $('rito_tipo').value.trim(),
-      data: new Date().toLocaleDateString()
+      data: new Date().toLocaleDateString(),
+      turma_id: $('rito_turma').value || ''
     };
-    // We also want to record turma_id for reference (optional)
-    payload.turma_id = $('rito_turma').value;
     if(!payload.catequizando_id || !payload.tipo_rito) return alert('Preencha todos os campos do rito');
     await apiPost('Ritos', payload);
     $('rito_tipo').value = '';
-    await loadAll();
-    showPage('ritos');
+    await loadAll(); showPage('ritos');
   });
 
   function loadCateForRito(){
@@ -607,25 +560,21 @@
   function renderRitos(){
     const tbody = $('tbodyRitos'); tbody.innerHTML='';
     const q = ($('searchRito')?.value||'').toLowerCase();
-    state.ritos.filter(r => (r.tipo_rito||'').toLowerCase().includes(q) || (r.catequizando_id||'').toLowerCase().includes(q))
-      .forEach(r=>{
-        const c = state.cate.find(x=>String(x.id) === String(r.catequizando_id));
-        const t = state.turmas.find(x=>String(x.id) === String(r.turma_id));
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${r.data||''}</td>
-                        <td>${t? t.nome : ''}</td>
-                        <td>${c? c.nome : ''}</td>
-                        <td>${r.tipo_rito||''}</td>
-                        <td style="width:140px">
-                          <button class="btn btn-sm btn-outline-secondary me-1" onclick='startEditRito("${r.id}")'><i class="fa-solid fa-pen"></i></button>
-                          <button class="btn btn-sm btn-red-outline" onclick='deleteRito("${r.id}")'><i class="fa-solid fa-trash"></i></button>
-                        </td>`;
-        tbody.appendChild(tr);
-      });
+    state.ritos.filter(r => (r.tipo_rito||'').toLowerCase().includes(q) || (r.catequizando_id||'').toLowerCase().includes(q)).forEach(r=>{
+      const c = state.cate.find(x=>String(x.id)===String(r.catequizando_id));
+      const t = state.turmas.find(x=>String(x.id)===String(r.turma_id));
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.data||''}</td><td>${t?t.nome:''}</td><td>${c?c.nome:''}</td><td>${r.tipo_rito||''}</td>
+        <td style="width:140px">
+          <button class="btn btn-sm btn-outline-secondary me-1" onclick='startEditRito("${r.id}")'><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-sm btn-red-outline" onclick='deleteRito("${r.id}")'><i class="fa-solid fa-trash"></i></button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
   }
 
   function startEditRito(id){
-    const r = state.ritos.find(x=>String(x.id) === String(id));
+    const r = state.ritos.find(x=>String(x.id)===String(id));
     if(!r) return;
     $('rito_turma').value = r.turma_id || '';
     loadCateForRito();
@@ -636,25 +585,24 @@
     if(!confirm('Excluir rito?')) return;
     await apiDeleteById(id,'Ritos'); await loadAll();
   }
-
   $('searchRito')?.addEventListener('input', renderRitos);
 
-  // ---------------- PRESENCAS ----------------
+  /* ========== PRESENCAS ========== */
   function loadAttendanceList(){
     const turmaId = $('pres_turma').value;
     const list = $('attendanceList'); list.innerHTML='';
     const cats = state.cate.filter(c => String(c.turma_id) === String(turmaId));
     if(cats.length === 0){ list.innerHTML = '<div class="muted tiny">Nenhum catequizando nesta turma</div>'; return; }
     cats.forEach(c=>{
+      const last = state.pres.filter(p => String(p.catequizando_id) === String(c.id)).slice(-1)[0];
+      const checked = last && String(last.presente||'').toLowerCase().includes('sim') ? 'checked' : '';
       const div = document.createElement('div'); div.className = 'd-flex align-items-center justify-content-between py-2 border-bottom';
-      const lastPres = state.pres.filter(p => String(p.catequizando_id) === String(c.id)).slice(-1)[0];
-      const checked = lastPres && (String(lastPres.presente||'').toLowerCase().includes('sim')) ? 'checked' : '';
       div.innerHTML = `<div><strong>${c.nome}</strong><div class="tiny muted">${c.responsavel || ''}</div></div>
-                        <div class="d-flex gap-2 align-items-center">
-                          <input type="checkbox" data-cat-id="${c.id}" ${checked} />
-                          <button class="btn btn-sm btn-outline-secondary" onclick="markPresent('${c.id}', true)">Presente</button>
-                          <button class="btn btn-sm btn-outline-secondary" onclick="markPresent('${c.id}', false)">Faltou</button>
-                        </div>`;
+        <div class="d-flex gap-2 align-items-center">
+          <input type="checkbox" data-cat-id="${c.id}" ${checked} />
+          <button class="btn btn-sm btn-outline-secondary" onclick="markPresent('${c.id}', true)">Presente</button>
+          <button class="btn btn-sm btn-outline-secondary" onclick="markPresent('${c.id}', false)">Faltou</button>
+        </div>`;
       list.appendChild(div);
     });
   }
@@ -674,40 +622,19 @@
       const presente = cb.checked ? 'Sim' : 'Não';
       // create a new Presencas row
       await apiPost('Presencas', { data: date, turma_id: turmaId, catequizando_id: catId, presente, observacao: '' });
+      // optional quick flag on catequizandos
+      await apiPutById(catId,'Catequizandos',{ presente: presente === 'Sim' ? 'Sim' : 'Não' });
     }
     alert('Presenças registradas');
     await loadAll();
   }
 
-  // ---------------- RELATORIOS ----------------
+  /* ========== RELATORIOS & EXPORT ========== */
   function fillSelects(){
-    // populate selects with turmas
     const opt = state.turmas.map(t => `<option value="${t.id}">${t.nome}</option>`).join('');
     ['cat_turma','rito_turma','pres_turma','rel_turma','edit_cat_turma'].forEach(id=>{
-      const el = document.getElementById(id);
-      if(el) el.innerHTML = `<option value="">Selecione</option>` + opt;
+      const el = document.getElementById(id); if(el) el.innerHTML = `<option value="">Selecione</option>` + opt;
     });
-    // additional small fill
-  }
-
-  function renderRitos(){ /* already defined above; keep for idempotence */ 
-    const tbody = $('tbodyRitos'); tbody.innerHTML='';
-    const q = ($('searchRito')?.value||'').toLowerCase();
-    state.ritos.filter(r => (r.tipo_rito||'').toLowerCase().includes(q) || (r.catequizando_id||'').toLowerCase().includes(q))
-      .forEach(r=>{
-        const c = state.cate.find(x=>String(x.id) === String(r.catequizando_id));
-        const t = state.turmas.find(x=>String(x.id) === String(r.turma_id));
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${r.data||''}</td>
-                        <td>${t? t.nome : ''}</td>
-                        <td>${c? c.nome : ''}</td>
-                        <td>${r.tipo_rito||''}</td>
-                        <td style="width:140px">
-                          <button class="btn btn-sm btn-outline-secondary me-1" onclick='startEditRito("${r.id}")'><i class="fa-solid fa-pen"></i></button>
-                          <button class="btn btn-sm btn-red-outline" onclick='deleteRito("${r.id}")'><i class="fa-solid fa-trash"></i></button>
-                        </td>`;
-        tbody.appendChild(tr);
-      });
   }
 
   async function generateReport(){
@@ -719,7 +646,7 @@
     html += `<div class="table-responsive"><table class="table"><thead><tr><th>Nome</th><th>Idade</th><th>Ritos</th><th>Última presença</th></tr></thead><tbody>`;
     for(const c of cats){
       const ritosList = state.ritos.filter(r=> String(r.catequizando_id) === String(c.id)).map(r=>r.tipo_rito).join(', ');
-      const lastPres = state.pres.filter(p => String(p.catequizando_id) === String(c.id)).slice(-1)[0];
+      const lastPres = state.pres.filter(p=> String(p.catequizando_id) === String(c.id)).slice(-1)[0];
       html += `<tr><td>${c.nome}</td><td>${c.data_nasc ? (new Date().getFullYear() - new Date(c.data_nasc).getFullYear()) : ''}</td><td>${ritosList}</td><td>${lastPres ? lastPres.presente : '-'}</td></tr>`;
     }
     html += `</tbody></table></div>`;
@@ -741,7 +668,7 @@
     XLSX.writeFile(wb,"relatorio.xlsx");
   }
 
-  // ---------------- NAVIGATION ----------------
+  /* ========== NAVIGATION ========== */
   qAll('#mainTabs .nav-link').forEach(a => {
     a.addEventListener('click', (e)=>{
       e.preventDefault();
@@ -756,29 +683,24 @@
     qAll('.page').forEach(p=>p.style.display='none');
     const node = document.getElementById('page-' + page);
     if(node) node.style.display = 'block';
-    // small actions
     if(page === 'catequizandos') renderCate();
     if(page === 'turmas') renderTurmas();
     if(page === 'ritos') renderRitos();
     if(page === 'presencas') loadAttendanceList();
-    if(page === 'relatorios') {
-      const sel = $('rel_turma');
-      sel.innerHTML = `<option value="">Selecione</option>` + state.turmas.map(t=>`<option value="${t.id}">${t.nome}</option>`).join('');
-    }
+    if(page === 'relatorios') fillSelects();
     window.scrollTo({top:0, behavior:'smooth'});
   }
 
-  // ---------------- INIT ----------------
+  /* ========== INIT ========== */
   (async ()=>{
     await loadAll();
     showPage('dashboard');
-    // wire search inputs
     $('searchTurma')?.addEventListener('input', renderTurmas);
     $('searchCate')?.addEventListener('input', renderCate);
     $('searchRito')?.addEventListener('input', renderRitos);
   })();
 
-  // expose some functions for inline onclick use
+  // expose some functions for inline buttons
   window.startEditTurma = startEditTurma;
   window.deleteTurma = deleteTurma;
   window.openEditCate = openEditCate;
